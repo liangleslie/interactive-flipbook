@@ -1,0 +1,17 @@
+{
+  "name": "for-sherry",
+  "version": "1.0.0",
+  "description": "Children flipbook ebook for Sherry",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "flipbook-js": "^1.1.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.3"
+  }
+}

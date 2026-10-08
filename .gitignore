@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+distro.html
+
+# Large / local assets
+resources/*
+
+# System files
+.DS_Store
+Thumbs.db
