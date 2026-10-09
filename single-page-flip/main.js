@@ -1,0 +1,333 @@
+import FlipBook from 'flipbook-js';
+
+// UI elements
+const bookContainer = document.getElementById('book-container');
+const prevBtn = document.getElementById('btn-prev');
+const nextBtn = document.getElementById('btn-next');
+const indicatorEl = document.getElementById('page-indicator');
+const pills = Array.from(document.querySelectorAll('.pill-dot'));
+
+// ponytail: patch library bugs in flipbook-js:
+// 1. Prevents forward turn overflow past the last page when canClose: true
+// 2. Ensures the cover element (r[0]) receives .is-animating when opening so z-index layering is correct
+// 3. Guards against multiple concurrent animations during rapid clicks
+// 4. Filters transitionend to target element to prevent premature animation termination
+FlipBook.prototype.turnPage = function (dir) {
+  const { el: t, options: i, classNames: a, Modernizr: o } = this;
+  if (!t) return;
+
+  if (t.querySelector(`.${a.page}.${a.isAnimating}`)) return;
+  if (dir === 'forward' && this.isLastPage()) return;
+  if (dir === 'back' && this.isFirstPage()) return;
+
+  const r = t.querySelectorAll(`.${a.page}.${a.isActive}`);
+  const l = t.querySelectorAll(`.${a.page}, .${a.hiddenCover}`);
+  const c = this.getActivePages()[0];
+  const d = c + 1;
+  const isBackAtStart = c === (i.canClose ? 0 : 1) && 'back' === dir;
+  const isForwardAtEnd = (d >= (i.canClose ? this.pages.length - 1 : this.pages.length - 2) || this.isLastPage()) && 'forward' === dir;
+  if (isBackAtStart || isForwardAtEnd) return;
+
+  let p, v;
+  if (typeof dir === 'number') {
+    const s = 1 & dir, target = (i.canClose ? s : !s) ? dir : dir + 1, prev = target - 1;
+    if (prev === c) return;
+    prev > d ? (dir = 'forward', p = prev, v = p + 1) : (dir = 'back', p = target, v = p - 1);
+  } else {
+    p = 'forward' === dir ? d + 1 : c - 1;
+    v = 'forward' === dir ? d + 2 : c - 2;
+  }
+  if ('forward' === dir && 2 === p) {
+    p = 1;
+    v = 2;
+  }
+
+  const u = 'back' === dir ? r.item(0) : (r.item(1) || r.item(0));
+  const f = l.item(p);
+  let m = [f];
+  if (-1 !== v) {
+    m = [...m, l.item(v)];
+  }
+  const n = [f, u].filter(Boolean);
+
+  r.forEach(e => {
+    e.classList.remove(a.isActive);
+    e.classList.add(a.wasActive);
+  });
+  m.forEach(e => {
+    e && e.classList.add(a.isActive);
+  });
+  if (o.csstransforms3d) {
+    n.forEach(e => {
+      e && e.classList.add(a.isAnimating);
+    });
+  }
+
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    n.forEach(e => e && e.classList.remove(a.isAnimating));
+    r.forEach(e => e && e.classList.remove(a.wasActive));
+  };
+  n.forEach(el => {
+    const onEnd = (e) => {
+      if (e.target !== el || e.propertyName !== 'transform') return;
+      el.removeEventListener('transitionend', onEnd);
+      cleanup();
+    };
+    el.addEventListener('transitionend', onEnd);
+  });
+  setTimeout(cleanup, 950);
+
+  if (i.canClose) {
+    const lastEl = m[m.length - 1];
+    const isAtEnd = m[0] && m[0].classList.contains(a.lastPage);
+    const isAtStart = lastEl && lastEl.classList.contains(a.firstPage);
+    if ('back' === dir && isAtStart) {
+      t.classList.remove(a.atBackCover);
+      t.classList.add(a.atFrontCover);
+    } else if ('forward' === dir && isAtEnd) {
+      t.classList.remove(a.atFrontCover);
+      t.classList.add(a.atBackCover);
+    } else {
+      t.classList.remove(a.atBackCover);
+      t.classList.remove(a.atFrontCover);
+    }
+  }
+
+  i.onPageTurn(t, { pagesActive: r, children: l });
+};
+
+// --- Mobile Step Management (0: Cover, 1: Ed, 2: Leslie, 3: The End) ---
+let mobileStep = 0;
+
+function isMobile() {
+  return window.innerWidth <= 768;
+}
+
+function updateMobileStepClass() {
+  if (!bookContainer) return;
+  bookContainer.classList.remove('mobile-step-0', 'mobile-step-1', 'mobile-step-2', 'mobile-step-3');
+  if (isMobile()) {
+    bookContainer.classList.add(`mobile-step-${mobileStep}`);
+  }
+  pills.forEach((p, idx) => {
+    p.classList.toggle('is-active', idx === mobileStep);
+  });
+}
+
+function updateIndicator(book) {
+  if (isMobile()) {
+    if (mobileStep === 0) indicatorEl.textContent = 'Cover';
+    else if (mobileStep === 1) indicatorEl.textContent = '1: Ed';
+    else if (mobileStep === 2) indicatorEl.textContent = '2: Leslie';
+    else indicatorEl.textContent = 'The End';
+
+    if (prevBtn) prevBtn.disabled = mobileStep <= 0;
+    if (nextBtn) nextBtn.disabled = mobileStep >= 3;
+    return;
+  }
+
+  // Desktop indicator
+  const activePages = book.getActivePages();
+  const total = book.pages.length;
+
+  if (activePages.length === 1 && activePages[0] === 0) {
+    indicatorEl.textContent = 'Cover';
+  } else if (activePages.length === 1 && activePages[0] === total - 1) {
+    indicatorEl.textContent = 'The End';
+  } else if (activePages.length >= 2) {
+    indicatorEl.textContent = `Pages ${activePages[0]}-${activePages[1]}`;
+  } else if (activePages.length === 1) {
+    indicatorEl.textContent = `Page ${activePages[0]}`;
+  }
+
+  if (prevBtn) prevBtn.disabled = book.isFirstPage();
+  if (nextBtn) nextBtn.disabled = book.isLastPage();
+}
+
+// Initialize FlipBook
+const flipbook = new FlipBook('flipbook', {
+  nextButton: null, // Custom handler below supports both desktop & mobile
+  previousButton: null,
+  canClose: true,
+  arrowKeys: true,
+  initialActivePage: 0,
+  width: '100%',
+  height: '100%',
+  onPageTurn: () => {
+    setTimeout(() => {
+      updateIndicator(flipbook);
+      syncAllWrappers();
+    }, 50);
+  }
+});
+
+function handleNext() {
+  if (isMobile()) {
+    if (mobileStep === 0) {
+      mobileStep = 1;
+      flipbook.turnPage('forward');
+    } else if (mobileStep === 1) {
+      mobileStep = 2;
+    } else if (mobileStep === 2) {
+      mobileStep = 3;
+      flipbook.turnPage('forward');
+    }
+    updateMobileStepClass();
+    updateIndicator(flipbook);
+    setTimeout(syncAllWrappers, 80);
+    return;
+  }
+
+  flipbook.turnPage('forward');
+}
+
+function handlePrev() {
+  if (isMobile()) {
+    if (mobileStep === 3) {
+      mobileStep = 2;
+      flipbook.turnPage('back');
+    } else if (mobileStep === 2) {
+      mobileStep = 1;
+    } else if (mobileStep === 1) {
+      mobileStep = 0;
+      flipbook.turnPage('back');
+    }
+    updateMobileStepClass();
+    updateIndicator(flipbook);
+    setTimeout(syncAllWrappers, 80);
+    return;
+  }
+
+  flipbook.turnPage('back');
+}
+
+if (nextBtn) nextBtn.addEventListener('click', handleNext);
+if (prevBtn) prevBtn.addEventListener('click', handlePrev);
+
+let wasSwiped = false;
+
+// Tap anywhere on book to navigate (left half = prev, right half = next)
+if (bookContainer) {
+  bookContainer.addEventListener('click', (e) => {
+    if (wasSwiped) {
+      e.stopPropagation();
+      return;
+    }
+    // If clicking on flap or revealed lower art, let flap handlers process it
+    if (e.target.closest('.upper-wrapper') || e.target.closest('.lower-art')) {
+      return;
+    }
+
+    // Stop propagation so flipbook-js internal page click listeners never fire
+    e.stopPropagation();
+
+    const rect = bookContainer.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+
+    // On cover, tapping anywhere opens forward; otherwise left half = prev, right half = next
+    const atCover = isMobile() ? mobileStep === 0 : flipbook.isFirstPage();
+    if (atCover || clickX > rect.width / 2) {
+      handleNext();
+    } else {
+      handlePrev();
+    }
+  }, true); // Capture phase intercepts before children
+}
+
+// Touch Swipe for mobile navigation
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+
+window.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchStartTime = Date.now();
+}, { passive: true });
+
+window.addEventListener('touchend', (e) => {
+  const deltaX = e.changedTouches[0].clientX - touchStartX;
+  const deltaY = e.changedTouches[0].clientY - touchStartY;
+  const elapsed = Date.now() - touchStartTime;
+
+  if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY) && elapsed < 800) {
+    wasSwiped = true;
+    setTimeout(() => { wasSwiped = false; }, 350);
+    if (deltaX < 0) {
+      handleNext();
+    } else {
+      handlePrev();
+    }
+  }
+});
+
+window.addEventListener('resize', () => {
+  updateMobileStepClass();
+  updateIndicator(flipbook);
+  syncAllWrappers();
+});
+
+
+// Interactive art toggle: upper-wrapper (solid white div) is sized 10px larger than lower-art
+// ponytail: ResizeObserver + image load listeners ensure wrapper covers lower-art with exact +10px border
+function syncArtWrapper(lower, wrapper) {
+  if (!lower || !wrapper) return;
+  const w = lower.offsetWidth || lower.naturalWidth;
+  const h = lower.offsetHeight || lower.naturalHeight;
+  if (w > 0 && h > 0) {
+    wrapper.style.width = `${Math.round(w + 10)}px`;
+    wrapper.style.height = `${Math.round(h + 10)}px`;
+  }
+}
+
+function syncAllWrappers() {
+  document.querySelectorAll('.cover-art, .page-illustration').forEach((container) => {
+    const lower = container.querySelector('.lower-art');
+    const wrapper = container.querySelector('.upper-wrapper');
+    syncArtWrapper(lower, wrapper);
+  });
+}
+
+document.querySelectorAll('.cover-art, .page-illustration').forEach((container) => {
+  const lower = container.querySelector('.lower-art');
+  const wrapper = container.querySelector('.upper-wrapper');
+  if (!lower || !wrapper) return;
+
+  // Observe size changes
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => syncArtWrapper(lower, wrapper));
+    ro.observe(lower);
+  }
+
+  if (lower.complete) {
+    syncArtWrapper(lower, wrapper);
+  } else {
+    lower.addEventListener('load', () => syncArtWrapper(lower, wrapper), { once: true });
+  }
+
+  // Click wrapper -> hides whole div (including upper-art), revealing lower-art
+  wrapper.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrapper.classList.add('is-hidden');
+  });
+
+  // Click lower-art -> restores whole div (including upper-art)
+  lower.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrapper.classList.remove('is-hidden');
+  });
+
+  container.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+});
+
+// Initial boot
+updateMobileStepClass();
+updateIndicator(flipbook);
+window.addEventListener('load', syncAllWrappers);
+window.addEventListener('resize', syncAllWrappers);

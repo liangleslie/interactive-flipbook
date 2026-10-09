@@ -1,116 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sherry's Adventure Book</title>
+  <title>Sherry's Magic Storybook — Mobile Prototypes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="./style.css" />
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 50% 25%, #fef3c7 0%, #fed7aa 45%, #fbcfe8 100%);
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(255, 255, 255, 0.7);
+      --primary: #e11d48;
+      --primary-dark: #9f1239;
+      --text-dark: #292524;
+      --text-muted: #78716c;
+      --font-heading: 'Fredoka', cursive, sans-serif;
+      --font-body: 'Nunito', sans-serif;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1.25rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #ffe4e6;
+      color: #be123c;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.15);
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      color: #be123c;
+      text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: #881337;
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 15px 35px -10px rgba(190, 18, 60, 0.12), 0 0 1px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(190, 18, 60, 0.22);
+    }
+
+    .card-active {
+      border-color: #fda4af;
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .status-ready {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-planned {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      color: #9f1239;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: #57534e;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #be123c;
+    }
+
+    .card:hover .card-action {
+      color: #e11d48;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #9f1239;
+      opacity: 0.85;
+    }
+  </style>
+</head>
 <body>
-  <div class="app-layout">
-    <!-- Header / Title -->
-    <header class="app-header">
-      <h1 class="book-title">✨ Sherry's Magic Storybook ✨</h1>
-      <p class="book-subtitle">Click pages or use arrow keys to flip</p>
+  <div class="container">
+    <header>
+      <span class="badge">Mobile UI/UX Prototypes</span>
+      <h1>✨ Sherry's Magic Storybook ✨</h1>
+      <p class="subtitle">
+        Four mobile-friendly design explorations sharing one asset library. Explore tactile 3D flips, continuous strips, and card decks.
+      </p>
     </header>
 
-    <!-- Book Stage -->
-    <main class="book-stage">
-      <div class="book-container">
-        <div class="c-flipbook" id="flipbook">
-          <!-- Page 1: Front Cover -->
-          <div class="c-flipbook__page page-cover page-front-cover">
-            <div class="cover-inner">
-              <span class="cover-badge">Special Edition</span>
-              <h2 class="cover-title">Sherry & Friends</h2>
-              <div class="cover-art">
-                <img src="./resources/png/sg-2.png" alt="Sherry lower" class="character-hero lower-art" />
-                <div class="upper-wrapper">
-                  <img src="./resources/png/sg-1.png" alt="Sherry upper" class="character-hero upper-art" />
-                </div>
-              </div>
-              <p class="cover-author">A Tale of Fun & Friendship</p>
-              <div class="cover-tap-hint">Tap to open ➔</div>
-            </div>
+    <div class="grid">
+      <!-- Style 1: Single Page Flip -->
+      <a href="./single-page-flip/" class="card card-active">
+        <div>
+          <div class="card-header">
+            <span class="card-icon">📖</span>
+            <span class="status-pill status-ready">Ready</span>
           </div>
-
-          <!-- Page 2: Inside Front Cover (Left Page) -> Story Page 1 -->
-          <div class="c-flipbook__page page-story page-left">
-            <div class="story-content">
-              <span class="page-number">1</span>
-              <h3>Meet Ed!</h3>
-              <p>Once upon a sunny afternoon, Ed was full of cheerful ideas and ready to explore.</p>
-              <div class="page-illustration">
-                <img src="./resources/jpg/ed-2.jpg" alt="Ed lower" class="story-img lower-art" />
-                <div class="upper-wrapper">
-                  <img src="./resources/jpg/ed-1.jpg" alt="Ed upper" class="story-img upper-art" />
-                </div>
-              </div>
-              <p class="story-caption">Tap Ed to see what happens!</p>
-            </div>
-          </div>
-
-          <!-- Page 3: Story Page 2 (Right Page) -->
-          <div class="c-flipbook__page page-story page-right">
-            <div class="story-content">
-              <span class="page-number">2</span>
-              <h3>Meet Leslie!</h3>
-              <p>Leslie joined in with curious gadgets and big smiles, ready for the adventure ahead.</p>
-              <div class="page-illustration">
-                <img src="./resources/png/les-2.png" alt="Leslie lower" class="story-img lower-art" />
-                <div class="upper-wrapper">
-                  <img src="./resources/png/les-1.png" alt="Leslie upper" class="story-img upper-art" />
-                </div>
-              </div>
-              <p class="story-caption">Tap Leslie to see what happens!</p>
-            </div>
-          </div>
-
-          <!-- Page 4: Back Cover -->
-          <div class="c-flipbook__page page-cover page-back-cover">
-            <div class="cover-inner back-inner">
-              <div class="back-logo">🌟</div>
-              <h2>The End</h2>
-              <p>Made with love for Sherry.</p>
-              <div class="back-footer">
-                <span>flipbook-js</span>
-              </div>
-            </div>
-          </div>
+          <h2 class="card-title">1. Responsive Flipbook</h2>
+          <p class="card-desc">
+            Single page flip on phones (no cramped spreads) + 2-page spread on desktop. Preserves realistic 3D paper curl and liftable character flaps.
+          </p>
         </div>
-      </div>
-    </main>
+        <div class="card-action">
+          <span>Launch Prototype</span>
+          <span>➔</span>
+        </div>
+      </a>
 
-    <!-- Book Controls -->
-    <footer class="controls-toolbar">
-      <button id="btn-prev" class="control-btn" aria-label="Previous Page">
-        <span class="icon">◀</span>
-        <span>Prev</span>
-      </button>
+      <!-- Style 2: Sidescrolling Reel -->
+      <a href="./sidescroll/" class="card">
+        <div>
+          <div class="card-header">
+            <span class="card-icon">📜</span>
+            <span class="status-pill status-planned">Planned</span>
+          </div>
+          <h2 class="card-title">2. Sidescrolling Reel</h2>
+          <p class="card-desc">
+            Continuous horizontal panorama with CSS scroll snap. Natural thumb swipe without artificial book boundaries, lifting character flaps along the journey.
+          </p>
+        </div>
+        <div class="card-action">
+          <span>View Concept</span>
+          <span>➔</span>
+        </div>
+      </a>
 
-      <div class="page-indicator" id="page-indicator">
-        Cover
-      </div>
+      <!-- Style 3: Vertical Storyboard -->
+      <a href="./vertical-story/" class="card">
+        <div>
+          <div class="card-header">
+            <span class="card-icon">📱</span>
+            <span class="status-pill status-planned">Planned</span>
+          </div>
+          <h2 class="card-title">3. Vertical Storyboard</h2>
+          <p class="card-desc">
+            Full-height vertical snap feed optimized for single-handed phone browsing. Top-hinged peek-a-boo flaps reveal secrets on tap.
+          </p>
+        </div>
+        <div class="card-action">
+          <span>View Concept</span>
+          <span>➔</span>
+        </div>
+      </a>
 
-      <button id="btn-next" class="control-btn" aria-label="Next Page">
-        <span>Next</span>
-        <span class="icon">▶</span>
-      </button>
+      <!-- Style 4: Interactive Story Cards -->
+      <a href="./story-cards/" class="card">
+        <div>
+          <div class="card-header">
+            <span class="card-icon">✨</span>
+            <span class="status-pill status-planned">Planned</span>
+          </div>
+          <h2 class="card-title">4. Story Cards Deck</h2>
+          <p class="card-desc">
+            Tap-to-advance card stack with progress bars (Instagram Stories / Tinder deck style). Maximum screen real estate for artwork with tactile lift flaps.
+          </p>
+        </div>
+        <div class="card-action">
+          <span>View Concept</span>
+          <span>➔</span>
+        </div>
+      </a>
+    </div>
 
-      <button id="btn-sound" class="control-btn sound-toggle" aria-label="Toggle Flip Sound">
-        <span class="icon" id="sound-icon">🔊</span>
-      </button>
+    <footer>
+      Sherry's Magic Storybook • Shared Assets in <code>/resources/</code>
     </footer>
   </div>
-
-  <script type="module" src="./main.js"></script>
 </body>
-
 </html>
