@@ -123,7 +123,8 @@ function updateSceneUI(idx) {
   });
 }
 
-function getSceneCenterScroll(idx) {
+// Native Compositor Pinning: calculate scroll offsets where sticky pinning begins
+function getScenePinStart(idx) {
   if (!viewport || !scenes[idx]) return 0;
   if (idx === 0) return 0;
   const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
@@ -131,16 +132,30 @@ function getSceneCenterScroll(idx) {
     return maxScroll;
   }
   const scene = scenes[idx];
-  const natural = Math.round(scene.offsetLeft - (viewport.clientWidth - scene.offsetWidth) / 2);
-  return Math.min(natural, maxScroll);
+  const flow = scene.querySelector('.station-flow');
+  const stationWidth = flow ? flow.offsetWidth : (scene.offsetWidth || 440);
+  const natural = Math.round(scene.offsetLeft - (viewport.clientWidth - stationWidth) / 2);
+  return Math.min(Math.max(0, natural), maxScroll);
+}
+window.getScenePinStart = getScenePinStart;
+
+function getSceneCenterScroll(idx) {
+  if (idx === 0) return 0;
+  if (idx === scenes.length - 1) {
+    return Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+  }
+  // Scroll to scene pin start plus pre-linger so character is centered & ready to morph
+  const pinStart = getScenePinStart(idx);
+  const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+  return Math.min(pinStart + D_PRE, maxScroll);
 }
 window.getSceneCenterScroll = getSceneCenterScroll;
 
 function getActiveSceneIndex(S) {
-  const S0 = getSceneCenterScroll(0);
-  const S1 = getSceneCenterScroll(1);
-  const S2 = getSceneCenterScroll(2);
-  const S3 = getSceneCenterScroll(3);
+  const S0 = getScenePinStart(0);
+  const S1 = getScenePinStart(1);
+  const S2 = getScenePinStart(2);
+  const S3 = getScenePinStart(3);
 
   const T01 = (S0 + D_TOTAL + S1) / 2;
   const T12 = (S1 + D_TOTAL + S2) / 2;
@@ -182,7 +197,7 @@ window.addEventListener('keydown', (e) => {
 function getCenterFriction() {
   const S = viewport.scrollLeft;
   for (let i = 0; i < scenes.length - 1; i++) {
-    const sc = getSceneCenterScroll(i);
+    const sc = getScenePinStart(i);
     const delta = S - sc;
     if (delta >= 0 && delta <= D_TOTAL) {
       return 0.85;
@@ -203,8 +218,8 @@ window.addEventListener('wheel', (e) => {
 function getBackgroundShift(S) {
   let shift = 0;
   for (let i = 0; i < scenes.length - 1; i++) {
-    const S_center = getSceneCenterScroll(i);
-    const delta = S - S_center;
+    const S_pin = getScenePinStart(i);
+    const delta = S - S_pin;
     if (delta <= 0) {
       break;
     } else if (delta < D_TOTAL) {
@@ -234,52 +249,40 @@ function updateScrollDrivenMorphs() {
     spriteLayer.style.transform = `translateX(${visualBgX}px)`;
   }
 
+  // Native position:sticky keeps .station-flow pinned smoothly on compositor thread.
+  // JS now only drives the character opacity cross-dissolve & phase attributes.
   scenes.forEach((scene, i) => {
-    const flow = scene.querySelector('.station-flow');
     const morphTarget = scene.querySelector('.character-morph-target');
     const upper = scene.querySelector('.character-morph-target .upper-art');
     const lower = scene.querySelector('.character-morph-target .lower-art');
 
-    if (i >= scenes.length - 1) {
-      if (flow) flow.style.transform = 'none';
-      return;
-    }
+    if (i >= scenes.length - 1) return;
 
-    const S_center = getSceneCenterScroll(i);
-    const delta = S - S_center;
+    const S_pin = getScenePinStart(i);
+    const delta = S - S_pin;
 
-    let shift = 0;
     let morphProgress = 0;
     let phase = '';
 
     if (delta < 0) {
-      shift = 0;
       morphProgress = 0;
     } else if (delta < D_PRE) {
-      shift = delta;
       morphProgress = 0;
       phase = 'pre-linger';
     } else if (delta < D_PRE + D_MORPH) {
-      shift = delta;
       const raw = (delta - D_PRE) / D_MORPH;
       morphProgress = Math.sin((raw * Math.PI) / 2);
       phase = 'morphing';
     } else if (delta < D_TOTAL) {
-      shift = delta;
       morphProgress = 1;
       phase = 'post-linger';
     } else {
-      shift = D_TOTAL;
       morphProgress = 1;
     }
 
     if (morphTarget) {
       if (phase) morphTarget.setAttribute('data-phase', phase);
       else morphTarget.removeAttribute('data-phase');
-    }
-
-    if (flow) {
-      flow.style.transform = `translateX(${Math.round(shift)}px)`;
     }
 
     if (upper && lower && !morphTarget?.classList.contains('is-pinned')) {
