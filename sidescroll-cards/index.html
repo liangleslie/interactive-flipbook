@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sherry's Adventure Book — Horizontal Strip</title>
+  <title>Magic Storybook — Horizontal Strip</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -19,99 +19,20 @@
     <header class="top-nav">
       <a href="../" class="back-link">‹ All Styles</a>
 
-      <!-- Progress Track Indicator -->
-      <nav class="strip-progress" id="strip-progress" aria-label="Story Progress">
-        <button class="progress-pill is-active" data-index="0" aria-label="Cover">
-          <span>Cover</span>
-        </button>
-        <button class="progress-pill" data-index="1" aria-label="Ed">
-          <span>1: Ed</span>
-        </button>
-        <button class="progress-pill" data-index="2" aria-label="Leslie">
-          <span>2: Leslie</span>
-        </button>
-        <button class="progress-pill" data-index="3" aria-label="End">
-          <span>The End</span>
-        </button>
-      </nav>
+      <!-- Progress Track Indicator (dynamically populated) -->
+      <nav class="strip-progress" id="strip-progress" aria-label="Story Progress"></nav>
     </header>
 
     <!-- Header / Title -->
     <div class="app-header">
-      <h1 class="book-title">✨ Sherry's Magic Storybook ✨</h1>
+      <h1 class="book-title">✨ Magic Storybook ✨</h1>
       <p class="book-subtitle">Swipe sideways to journey • Tap illustrations to lift flaps</p>
     </div>
 
-    <!-- Main Horizontal Scrolling Strip Stage -->
+    <!-- Main Horizontal Scrolling Strip Stage (dynamically populated from resources/story-board.json) -->
     <main class="strip-stage">
       <div class="strip-container" id="strip-container">
-        <div class="strip-track" id="strip-track">
-          <!-- Card 0: Front Cover -->
-          <section class="strip-card card-cover card-front-cover" data-index="0" id="card-0">
-            <div class="card-inner cover-inner">
-              <span class="cover-badge">Special Edition</span>
-              <h2 class="cover-title">Sherry & Friends</h2>
-              <div class="cover-art">
-                <img src="../resources/png/sg-2.png" alt="Sherry lower" class="character-hero lower-art" />
-                <div class="upper-wrapper" title="Tap to lift flap">
-                  <img src="../resources/png/sg-1.png" alt="Sherry upper" class="character-hero upper-art" />
-                </div>
-              </div>
-              <p class="cover-author">A Tale of Fun & Friendship</p>
-              <div class="cover-tap-hint">Swipe sideways to explore ➔</div>
-            </div>
-          </section>
-
-          <!-- Card 1: Story Scene 1 (Ed) -->
-          <section class="strip-card card-story card-story-ed" data-index="1" id="card-1">
-            <div class="card-inner story-content">
-              <div class="card-badge-row">
-                <span class="page-number">1</span>
-                <span class="card-chapter-tag">Chapter One</span>
-              </div>
-              <h2 class="story-title">Meet Ed!</h2>
-              <p class="story-narrative">Once upon a sunny afternoon, Ed was full of cheerful ideas and ready to explore.</p>
-              <div class="page-illustration">
-                <img src="../resources/jpg/ed-2.jpg" alt="Ed lower" class="story-img lower-art" />
-                <div class="upper-wrapper" title="Tap to lift flap">
-                  <img src="../resources/jpg/ed-1.jpg" alt="Ed upper" class="story-img upper-art" />
-                </div>
-              </div>
-              <p class="story-caption">Tap Ed to see what happens!</p>
-            </div>
-          </section>
-
-          <!-- Card 2: Story Scene 2 (Leslie) -->
-          <section class="strip-card card-story card-story-leslie" data-index="2" id="card-2">
-            <div class="card-inner story-content">
-              <div class="card-badge-row">
-                <span class="page-number">2</span>
-                <span class="card-chapter-tag">Chapter Two</span>
-              </div>
-              <h2 class="story-title">Meet Leslie!</h2>
-              <p class="story-narrative">Leslie joined in with curious gadgets and big smiles, ready for the adventure ahead.</p>
-              <div class="page-illustration">
-                <img src="../resources/png/les-2.png" alt="Leslie lower" class="story-img lower-art" />
-                <div class="upper-wrapper" title="Tap to lift flap">
-                  <img src="../resources/png/les-1.png" alt="Leslie upper" class="story-img upper-art" />
-                </div>
-              </div>
-              <p class="story-caption">Tap Leslie to see what happens!</p>
-            </div>
-          </section>
-
-          <!-- Card 3: Back Cover -->
-          <section class="strip-card card-cover card-back-cover" data-index="3" id="card-3">
-            <div class="card-inner cover-inner back-inner">
-              <div class="back-logo">🌟</div>
-              <h2 class="back-title">The End</h2>
-              <p class="back-author">Made with love for Sherry.</p>
-              <div class="back-footer">
-                <span>Sidescrolling Storybook</span>
-              </div>
-            </div>
-          </section>
-        </div>
+        <div class="strip-track" id="strip-track"></div>
       </div>
     </main>
 

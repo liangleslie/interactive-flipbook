@@ -553,12 +553,12 @@ body {
     left: -100% !important;
   }
 
-  /* Step 1: Page 1 - Ed (left half of c-flipbook) */
+  /* Step 1: Page 1 (left half of c-flipbook) */
   .book-container.mobile-step-1 .c-flipbook {
     left: 0 !important;
   }
 
-  /* Step 2: Page 2 - Leslie (right half of c-flipbook) */
+  /* Step 2: Page 2 (right half of c-flipbook) */
   .book-container.mobile-step-2 .c-flipbook {
     left: -100% !important;
   }

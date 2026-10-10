@@ -1,39 +1,130 @@
-// Vertical Storyboard Snap Feed Engine
+// Vertical Storyboard Snap Feed Engine — Dynamically loaded from resources/story-board.json
+import storyBoard from '../resources/story-board.json';
 
 const viewport = document.getElementById('feed-viewport');
-const sections = Array.from(document.querySelectorAll('.feed-section'));
-const trackerNodes = Array.from(document.querySelectorAll('.tracker-node'));
+const verticalTracker = document.getElementById('vertical-tracker');
 const chapterPill = document.getElementById('chapter-pill');
 const feedCounter = document.getElementById('feed-counter');
 const btnPrev = document.getElementById('btn-prev-section');
 const btnNext = document.getElementById('btn-next-section');
-const btnRestart = document.getElementById('btn-restart');
-const flapBoxes = Array.from(document.querySelectorAll('.flap-box'));
 
 let currentSectionIndex = 0;
-const totalSections = sections.length;
-const chapterNames = ['Start', '1: Ed', '2: Leslie', 'The End'];
+const pages = storyBoard.pages || [];
+const totalSections = pages.length;
+
+function renderVerticalFeedDOM() {
+  if (!viewport || !verticalTracker) return;
+
+  // 1. Render tracker dots
+  verticalTracker.innerHTML = pages.map((page, i) => `
+    <button class="tracker-node ${i === 0 ? 'is-active' : ''}" data-index="${i}" aria-label="${page.navLabel || `Section ${i + 1}`}"></button>
+  `).join('');
+
+  // 2. Render snap sections
+  viewport.innerHTML = pages.map((page, i) => {
+    if (page.type === 'cover') {
+      return `
+        <section class="feed-section section-cover" id="section-${i}" data-index="${i}">
+          <div>
+            <span class="cover-badge">${page.text1 || page.badge || 'Vertical Feed'}</span>
+            <h1 class="hero-title">${page.title}</h1>
+            <p class="story-subtitle">${page.text2 || page.subtitle || ''}</p>
+          </div>
+
+          <div class="illustration-container">
+            <div class="flap-box" data-section="${i}" title="Tap to lift flap">
+              <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} revealed inside" class="lower-art" />
+              <div class="upper-flap">
+                <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} cover" class="upper-art" />
+              </div>
+              <div class="flap-hint-pill">Peek inside 👆</div>
+            </div>
+          </div>
+
+          <div class="section-footer-cue">
+            <span>${page.cue || 'Scroll down to begin ▼'}</span>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'end') {
+      return `
+        <section class="feed-section section-end" id="section-${i}" data-index="${i}">
+          <div>
+            <span class="end-ribbon">${page.text1 || page.ribbon || 'With Love'}</span>
+            <h2 class="end-title">${page.title}</h2>
+            <p class="end-narrative">${page.text2 || page.narrative || ''}</p>
+          </div>
+
+          <div class="illustration-container">
+            <div class="flap-box" data-section="${i}" title="${page.characterName || 'Hero'}">
+              <img src="${page.lowerArt}" alt="Celebration" class="lower-art" />
+              <div class="upper-flap is-lifted">
+                <img src="${page.upperArt}" alt="Celebration" class="upper-art" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button class="btn-restart" id="btn-restart">▲ Scroll Back to Top</button>
+          </div>
+        </section>
+      `;
+    }
+
+    // Standard story section
+    return `
+      <section class="feed-section section-story" id="section-${i}" data-index="${i}">
+        <div class="section-meta-row">
+          <span class="chapter-tag">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+          <span class="page-indicator">${String(page.pageNumber || i).padStart(2, '0')}</span>
+        </div>
+
+        <div>
+          <h2 class="section-heading">${page.title}</h2>
+          <p class="section-narrative">${page.text2 || page.narrative || ''}</p>
+        </div>
+
+        <div class="illustration-container">
+          <div class="flap-box" data-section="${i}" title="Tap to lift flap">
+            <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} inside" class="lower-art" />
+            <div class="upper-flap">
+              <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} outside" class="upper-art" />
+            </div>
+            <div class="flap-hint-pill">Lift flap 👆</div>
+          </div>
+        </div>
+
+        <div class="section-footer-cue">
+          <span>${page.cue || 'Scroll for next chapter ▼'}</span>
+        </div>
+      </section>
+    `;
+  }).join('');
+}
+
+renderVerticalFeedDOM();
+
+const trackerNodes = Array.from(document.querySelectorAll('.tracker-node'));
+const flapBoxes = Array.from(document.querySelectorAll('.flap-box'));
+const btnRestart = document.getElementById('btn-restart');
 
 function updateActiveSection(idx) {
   if (idx < 0 || idx >= totalSections) return;
   currentSectionIndex = idx;
 
-  // 1. Header chapter title pill
   if (chapterPill) {
-    chapterPill.textContent = chapterNames[idx] || `Section ${idx + 1}`;
+    chapterPill.textContent = pages[idx]?.navLabel || `Section ${idx + 1}`;
   }
-
-  // 2. Bottom counter
   if (feedCounter) {
     feedCounter.textContent = `${idx + 1} / ${totalSections}`;
   }
 
-  // 3. Right tracker dots
   trackerNodes.forEach((node, i) => {
     node.classList.toggle('is-active', i === idx);
   });
 
-  // 4. Navigation buttons
   if (btnPrev) btnPrev.disabled = idx <= 0;
   if (btnNext) btnNext.disabled = idx >= totalSections - 1;
 }
@@ -50,14 +141,12 @@ function scrollToSection(idx) {
 
 window.scrollToSection = scrollToSection;
 
-// Navigation Buttons
 btnPrev?.addEventListener('click', () => scrollToSection(currentSectionIndex - 1));
 btnNext?.addEventListener('click', () => scrollToSection(currentSectionIndex + 1));
 btnRestart?.addEventListener('click', () => {
-  // Reset all flaps
   flapBoxes.forEach((box) => {
     const flap = box.querySelector('.upper-flap');
-    if (flap && box.getAttribute('data-section') !== '3') {
+    if (flap && box.getAttribute('data-section') !== String(totalSections - 1)) {
       flap.classList.remove('is-lifted');
     }
     box.classList.remove('is-revealed');
@@ -65,12 +154,10 @@ btnRestart?.addEventListener('click', () => {
   scrollToSection(0);
 });
 
-// Tracker dot clicks
 trackerNodes.forEach((node, idx) => {
   node.addEventListener('click', () => scrollToSection(idx));
 });
 
-// Scroll Detection using rAF
 let ticking = false;
 
 function onScroll() {
@@ -96,7 +183,6 @@ viewport?.addEventListener('scroll', () => {
   }
 }, { passive: true });
 
-// 3D Tactile Flap Lift Interaction
 flapBoxes.forEach((box) => {
   box.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -108,7 +194,6 @@ flapBoxes.forEach((box) => {
   });
 });
 
-// Keyboard Navigation
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowDown' || e.key === 'PageDown') {
     scrollToSection(currentSectionIndex + 1);
@@ -117,5 +202,4 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Initial boot
 updateActiveSection(0);

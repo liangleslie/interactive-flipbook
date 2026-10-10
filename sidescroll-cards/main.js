@@ -1,11 +1,89 @@
-// Horizontal Strip + Lift Flaps Engine for Sherry's Storybook
+// Horizontal Strip + Lift Flaps Engine — Dynamically loaded from resources/story-board.json
+import storyBoard from '../resources/story-board.json';
 
 const stripContainer = document.getElementById('strip-container');
-const cards = Array.from(document.querySelectorAll('.strip-card'));
-const pills = Array.from(document.querySelectorAll('.progress-pill'));
+const stripTrack = document.getElementById('strip-track');
+const stripProgress = document.getElementById('strip-progress');
 const prevBtn = document.getElementById('btn-prev');
 const nextBtn = document.getElementById('btn-next');
 const indicatorEl = document.getElementById('page-indicator');
+
+const pages = storyBoard.pages || [];
+const labels = pages.map(p => p.navLabel || p.title);
+
+function renderSidescrollCardsDOM() {
+  if (!stripTrack || !stripProgress) return;
+
+  // 1. Render progress pills
+  stripProgress.innerHTML = pages.map((page, i) => `
+    <button class="progress-pill ${i === 0 ? 'is-active' : ''}" data-index="${i}" aria-label="${page.navLabel}">
+      <span>${page.navLabel}</span>
+    </button>
+  `).join('');
+
+  // 2. Render cards
+  stripTrack.innerHTML = pages.map((page, i) => {
+    if (page.type === 'cover') {
+      return `
+        <section class="strip-card card-cover card-front-cover is-active" data-index="${i}" id="card-${i}">
+          <div class="card-inner cover-inner">
+            <span class="cover-badge">${page.text1 || page.badge || 'Special Edition'}</span>
+            <h2 class="cover-title">${page.title}</h2>
+            <div class="cover-art">
+              <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} lower" class="character-hero lower-art" />
+              <div class="upper-wrapper" title="Tap to lift flap">
+                <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} upper" class="character-hero upper-art" />
+              </div>
+            </div>
+            <p class="cover-author">${page.text2 || page.subtitle || ''}</p>
+            <div class="cover-tap-hint">${page.cue || 'Swipe sideways to explore ➔'}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'end') {
+      return `
+        <section class="strip-card card-cover card-back-cover" data-index="${i}" id="card-${i}">
+          <div class="card-inner cover-inner back-inner">
+            <div class="back-logo">🌟</div>
+            <h2 class="back-title">${page.title}</h2>
+            <p class="back-author">${page.text2 || page.narrative || ''}</p>
+            <div class="back-footer">
+              <span>Sidescrolling Storybook</span>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    // Story card
+    return `
+      <section class="strip-card card-story card-story-${page.id || i}" data-index="${i}" id="card-${i}">
+        <div class="card-inner story-content">
+          <div class="card-badge-row">
+            <span class="page-number">${page.pageNumber || i}</span>
+            <span class="card-chapter-tag">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+          </div>
+          <h2 class="story-title">${page.title}</h2>
+          <p class="story-narrative">${page.text2 || page.narrative || ''}</p>
+          <div class="page-illustration">
+            <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} lower" class="story-img lower-art" />
+            <div class="upper-wrapper" title="Tap to lift flap">
+              <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} upper" class="story-img upper-art" />
+            </div>
+          </div>
+          <p class="story-caption">${page.caption || 'Tap illustration to lift flap'}</p>
+        </div>
+      </section>
+    `;
+  }).join('');
+}
+
+renderSidescrollCardsDOM();
+
+const cards = Array.from(document.querySelectorAll('.strip-card'));
+const pills = Array.from(document.querySelectorAll('.progress-pill'));
 
 let currentIndex = 0;
 let isProgrammaticScroll = false;
@@ -13,9 +91,6 @@ let scrollSettleTimer = null;
 let isTouchSwiping = false;
 let touchStartX = 0;
 let touchStartY = 0;
-
-// Card labels for bottom indicator
-const labels = ['Cover', '1: Ed', '2: Leslie', 'The End'];
 
 function updateIndicator(idx) {
   currentIndex = idx;
@@ -32,9 +107,10 @@ function updateIndicator(idx) {
   cards.forEach((card, i) => {
     card.classList.toggle('is-active', i === idx);
   });
+
+  syncAllWrappers();
 }
 
-// ponytail: mathematically calculates exact scrollLeft to center card without scrollIntoView overshoot
 function scrollToIndex(idx) {
   if (idx < 0 || idx >= cards.length) return;
   const targetCard = cards[idx];
@@ -56,27 +132,22 @@ function scrollToIndex(idx) {
   }, 450);
 }
 
-// Navigation buttons
 prevBtn?.addEventListener('click', () => scrollToIndex(currentIndex - 1));
 nextBtn?.addEventListener('click', () => scrollToIndex(currentIndex + 1));
 
-// Progress pill clicks
 pills.forEach((pill, idx) => {
   pill.addEventListener('click', () => scrollToIndex(idx));
 });
 
-// Keyboard navigation
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight' || e.key === 'PageDown') scrollToIndex(currentIndex + 1);
   if (e.key === 'ArrowLeft' || e.key === 'PageUp') scrollToIndex(currentIndex - 1);
 });
 
-// Mouse scroll wheel navigation (steps 1 card per wheel notch, prevents page skipping)
+// Wheel stepping
 let wheelThrottle = false;
 window.addEventListener('wheel', (e) => {
-  // Allow native trackpad horizontal gesture
   if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-
   if (Math.abs(e.deltaY) < 15) return;
   e.preventDefault();
 
@@ -91,77 +162,64 @@ window.addEventListener('wheel', (e) => {
   }
 }, { passive: false });
 
-// Calculate closest centered card during manual swipe/scroll
 function getCenteredCardIndex() {
   if (!stripContainer) return 0;
   const containerCenter = stripContainer.scrollLeft + stripContainer.clientWidth / 2;
   let closestIdx = 0;
   let minDistance = Infinity;
 
-  cards.forEach((card, i) => {
+  cards.forEach((card, idx) => {
     const cardCenter = card.offsetLeft + card.offsetWidth / 2;
     const dist = Math.abs(containerCenter - cardCenter);
     if (dist < minDistance) {
       minDistance = dist;
-      closestIdx = i;
+      closestIdx = idx;
     }
   });
 
   return closestIdx;
 }
 
-// Real-time scroll listener updates indicator when card centers
 stripContainer?.addEventListener('scroll', () => {
-  if (isProgrammaticScroll) return;
-  const activeIdx = getCenteredCardIndex();
-  if (activeIdx !== currentIndex) {
-    updateIndicator(activeIdx);
+  if (isProgrammaticScroll || isTouchSwiping) return;
+  const centered = getCenteredCardIndex();
+  if (centered !== currentIndex) {
+    updateIndicator(centered);
   }
 }, { passive: true });
 
-// Touch tracking to distinguish swipe drag from tap
 stripContainer?.addEventListener('touchstart', (e) => {
-  if (e.touches.length !== 1) return;
+  isTouchSwiping = true;
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
-  isTouchSwiping = false;
 }, { passive: true });
 
-stripContainer?.addEventListener('touchmove', (e) => {
-  if (e.touches.length !== 1) return;
-  const dx = Math.abs(e.touches[0].clientX - touchStartX);
-  const dy = Math.abs(e.touches[0].clientY - touchStartY);
-  if (dx > 12 || dy > 12) {
-    isTouchSwiping = true;
+stripContainer?.addEventListener('touchend', (e) => {
+  isTouchSwiping = false;
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+    if (diffX < 0) {
+      scrollToIndex(currentIndex + 1);
+    } else {
+      scrollToIndex(currentIndex - 1);
+    }
+  } else {
+    const centered = getCenteredCardIndex();
+    scrollToIndex(centered);
   }
 }, { passive: true });
 
-// Tap navigation on cards: tap right half -> next, left half -> prev, or tap peeking card to center it
-cards.forEach((card, idx) => {
-  card.addEventListener('click', (e) => {
-    if (isTouchSwiping) return;
-    if (e.target.closest('.upper-wrapper') || e.target.closest('.lower-art')) return;
-
-    if (idx === currentIndex) {
-      const rect = card.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      if (clickX > rect.width / 2) {
-        scrollToIndex(currentIndex + 1);
-      } else {
-        scrollToIndex(currentIndex - 1);
-      }
-    } else {
-      scrollToIndex(idx);
-    }
-  });
-});
-
-// Interactive art toggle: upper-wrapper (solid white div) is sized 10px larger than lower-art
-// ponytail: ResizeObserver + image load listeners ensure wrapper covers lower-art with exact +10px border
+// Sizing alignment between upper & lower art
+// ponytail: offsetWidth/Height avoid getBoundingClientRect scale(0.95) distortion, +10px ensures flap fully covers lower art
 function syncArtWrapper(lower, wrapper) {
   if (!lower || !wrapper) return;
   const w = lower.offsetWidth || lower.naturalWidth;
   const h = lower.offsetHeight || lower.naturalHeight;
+
   if (w > 0 && h > 0) {
     wrapper.style.width = `${Math.round(w + 10)}px`;
     wrapper.style.height = `${Math.round(h + 10)}px`;
@@ -181,7 +239,6 @@ document.querySelectorAll('.cover-art, .page-illustration').forEach((container) 
   const wrapper = container.querySelector('.upper-wrapper');
   if (!lower || !wrapper) return;
 
-  // Observe size changes
   if (window.ResizeObserver) {
     const ro = new ResizeObserver(() => syncArtWrapper(lower, wrapper));
     ro.observe(lower);
@@ -193,24 +250,17 @@ document.querySelectorAll('.cover-art, .page-illustration').forEach((container) 
     lower.addEventListener('load', () => syncArtWrapper(lower, wrapper), { once: true });
   }
 
-  // Click wrapper -> hides whole div (including upper-art), revealing lower-art
   wrapper.addEventListener('click', (e) => {
     e.stopPropagation();
     wrapper.classList.add('is-hidden');
   });
 
-  // Click lower-art -> restores whole div (including upper-art)
   lower.addEventListener('click', (e) => {
     e.stopPropagation();
     wrapper.classList.remove('is-hidden');
   });
-
-  container.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
 });
 
-// Initial boot
 updateIndicator(0);
 window.addEventListener('load', syncAllWrappers);
 window.addEventListener('resize', () => {

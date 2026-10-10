@@ -6,7 +6,7 @@ dist/
 distro.html
 
 # Large / local assets
-resources/*
+resources-*/*
 
 # System files
 .DS_Store

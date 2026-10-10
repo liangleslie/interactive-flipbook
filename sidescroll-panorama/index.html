@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sherry's Adventure — Continuous Story Panorama</title>
+  <title>Magic Storybook — Continuous Story Panorama</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -24,22 +24,6 @@
         <div class="journey-line">
           <div class="journey-progress" id="journey-progress"></div>
         </div>
-        <button class="landmark-node is-active" data-scene="0" aria-label="Start">
-          <span class="node-dot"></span>
-          <span class="node-label">Start</span>
-        </button>
-        <button class="landmark-node" data-scene="1" aria-label="Ed">
-          <span class="node-dot"></span>
-          <span class="node-label">Ed</span>
-        </button>
-        <button class="landmark-node" data-scene="2" aria-label="Leslie">
-          <span class="node-dot"></span>
-          <span class="node-label">Leslie</span>
-        </button>
-        <button class="landmark-node" data-scene="3" aria-label="End">
-          <span class="node-dot"></span>
-          <span class="node-label">End</span>
-        </button>
       </div>
     </header>
 
@@ -90,81 +74,7 @@
 
     <!-- Main Continuous Panorama Viewport -->
     <main class="panorama-viewport" id="panorama-viewport">
-      <div class="panorama-world" id="panorama-world">
-
-        <!-- Scene 0: Start / Sherry -->
-        <section class="scene-station scene-start" id="scene-0" data-index="0">
-          <div class="station-flow">
-            <span class="scene-badge">Special Edition</span>
-            <h1 class="hero-title">Sherry & Friends</h1>
-            <p class="story-subtitle">A Tale of Fun & Friendship</p>
-
-            <div class="character-spot">
-              <div class="character-morph-target" data-index="0" title="Tap or scroll to morph">
-                <img src="../resources/png/sg-2.png" alt="Sherry revealed" class="character-img lower-art" />
-                <img src="../resources/png/sg-1.png" alt="Sherry cover" class="character-img upper-art" />
-              </div>
-            </div>
-
-            <div class="scroll-cue">
-              <span>Scroll along the path ➔</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- Scene 1: Ed's Meadow -->
-        <section class="scene-station scene-ed" id="scene-1" data-index="1">
-          <div class="station-flow">
-            <div class="chapter-badge-row">
-              <span class="page-number">1</span>
-              <span class="chapter-tag">Chapter One</span>
-            </div>
-            <h2 class="scene-heading">Meet Ed!</h2>
-            <p class="scene-narrative">Once upon a sunny afternoon, Ed was full of cheerful ideas and ready to explore.</p>
-
-            <div class="character-spot">
-              <div class="character-morph-target" data-index="1" title="Tap or scroll to morph">
-                <img src="../resources/jpg/ed-2.jpg" alt="Ed inside" class="character-img lower-art" />
-                <img src="../resources/jpg/ed-1.jpg" alt="Ed outside" class="character-img upper-art" />
-              </div>
-            </div>
-
-            <p class="story-caption">Scrolling centers Ed & morphs into the story</p>
-          </div>
-        </section>
-
-        <!-- Scene 2: Leslie's Grove -->
-        <section class="scene-station scene-leslie" id="scene-2" data-index="2">
-          <div class="station-flow">
-            <div class="chapter-badge-row">
-              <span class="page-number">2</span>
-              <span class="chapter-tag">Chapter Two</span>
-            </div>
-            <h2 class="scene-heading">Meet Leslie!</h2>
-            <p class="scene-narrative">Leslie joined in with curious gadgets and big smiles, ready for the adventure ahead.</p>
-
-            <div class="character-spot">
-              <div class="character-morph-target" data-index="2" title="Tap or scroll to morph">
-                <img src="../resources/png/les-2.png" alt="Leslie revealed" class="character-img lower-art" />
-                <img src="../resources/png/les-1.png" alt="Leslie greeting" class="character-img upper-art" />
-              </div>
-            </div>
-
-            <p class="story-caption">Scrolling centers Leslie & morphs into the adventure</p>
-          </div>
-        </section>
-
-        <!-- Scene 3: Twilight Finale -->
-        <section class="scene-station scene-end" id="scene-3" data-index="3">
-          <div class="station-flow end-flow">
-            <div class="end-star">🌟</div>
-            <h2 class="end-heading">The End</h2>
-            <p class="end-dedication">Made with love for Sherry.</p>
-            <div class="end-tag">Continuous Story Panorama</div>
-          </div>
-        </section>
-
-      </div>
+      <div class="panorama-world" id="panorama-world"></div>
     </main>
 
     <!-- Floating Bottom Navigation -->

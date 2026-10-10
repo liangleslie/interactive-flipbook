@@ -1,53 +1,67 @@
-# Sherry's Magic Storybook ✨
+# Magic Storybook ✨
 
-Interactive 3D children's flipbook web application built with HTML, CSS, JavaScript, and Vite.
+Interactive mobile reading prototypes exploring modern UI and interaction paradigms for illustrated children's storybooks, featuring tactile peek-a-boo flaps and progressive layer reveals.
 
-## Features
+## Overview
 
-- **3D Page Turning**: Realistically flips pages using 3D perspective transforms with spine shading and cover mechanics.
-- **Interactive Peek-a-Boo Flaps**: Click character illustrations to flip up flaps in 3D (`rotateX`) and reveal lower art underneath.
-- **Procedural Audio**: Page turn sound synthesized procedurally in real-time via the Web Audio API (zero audio asset dependencies).
-- **Offline Single-File Bundle**: Packaged into a standalone `distro.html` with all images, styles, and scripts inlined as Base64 data URIs for email and offline distribution.
+This repository explores 5 distinct reading experiences for mobile and desktop web, demonstrating how children's lift-the-flap picture books can be reimagined digitally:
 
-## Development
+1. **Responsive 3D Flipbook** (`/page-flip/`)  
+   Realistic 3D page turns (`flipbook-js` + custom CSS 3D transforms), dual-page spread on desktop, single-page touch-step navigation on mobile, and 3D flap-lift interactions.
 
-Prerequisites: Node.js (v20+) or `uv`.
+2. **Horizontal Story Strip** (`/sidescroll-cards/`)  
+   Horizontal landscape scroll with pill progress tracking, snap positioning, and interactive peek-a-boo flaps.
 
+3. **Continuous Story Panorama** (`/sidescroll-panorama/`)  
+   Continuous side-scrolling panoramic world with an infinite looping illustrated backdrop, scripted animated sprites (butterflies, soaring songbirds, hot air balloons), and scroll-anchored morphing transitions between character layers.
+
+4. **Vertical Storyboard** (`/vertical-story/`)  
+   Modern full-screen vertical snap-scroll (social story / feed style) with right-edge chapter progress dots and tap-to-reveal flaps.
+
+5. **Story Cards Deck** (`/story-cards/`)  
+   Full-screen tap-to-advance card deck with segmented top progress bars (Instagram Stories / Tinder deck style) for focused, distraction-free illustration display.
+
+---
+
+## Shared Architecture
+
+All 5 prototypes dynamically render from a single centralized story specification:
+
+- **Source of Truth**: [`resources/story-board.json`](file:///home/leslie/Downloads/photos/For%20sherry/resources/story-board.json) defines all chapters, titles, narrative text, character attributes, and layer asset paths.
+- **Visual Assets**: Contained in `resources/png/` and `resources/jpg/`, featuring stylized fictional storybook characters (**Aria**, **Leo**, and **Felix**) with upper/lower flap layers.
+- **Silent & Accessible**: Built without external audio/sound effects for a clean, peaceful reading experience across all devices.
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v20+) or [`uv`](https://github.com/astral-sh/uv).
+
+### Development Server
 ```bash
 # Install dependencies
 uv run npm install
 
-# Start local dev server
+# Start Vite dev server
 uv run npm run dev
 ```
 
-Server runs by default at `http://localhost:5173/`.
+The prototype portal will be available at `http://localhost:5173/`.
 
-## Building Single-File Offline Distribution
-
-To compile and package everything into the standalone `distro.html`:
-
+### Production Build
 ```bash
-# 1. Build Vite production bundle
 uv run npm run build
-
-# 2. Bundle into single self-contained distro.html
-uv run node bundle.mjs
 ```
 
-The resulting `distro.html` can be opened directly by double-clicking in any modern web browser or sent as an email attachment without hosting.
+Compiled bundles for all 5 prototypes and the portal are output to `dist/`.
 
-## Self-Check Tests
+---
 
-Run automated headless navigation and layer-transition checks:
+## Automated Verification
+
+Headless CDP test script for verifying dynamic rendering across all 5 UIs:
 
 ```bash
-uv run node test-check.mjs
+uv run node scratch/test-all-5-uis-dynamic.mjs
 ```
-
-## Tech Stack
-
-- **Vite**: Build tool and dev server
-- **flipbook-js**: Core 3D page flip engine (with custom boundary & z-index patches)
-- **Vanilla CSS**: Custom 3D animations, responsive layout, glassmorphic UI controls
-- **Web Audio API**: Procedural noise and bandpass-filtered page turn sound

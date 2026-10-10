@@ -1,19 +1,120 @@
-// Story Cards Deck Engine — Instagram Stories & 3D Card Stack Format
+// Story Cards Deck Engine — Dynamically loaded from resources/story-board.json
+import storyBoard from '../resources/story-board.json';
 
-const cards = Array.from(document.querySelectorAll('.story-card'));
-const segments = Array.from(document.querySelectorAll('.progress-segment'));
+const deckStage = document.getElementById('deck-stage');
+const progressSegmentsContainer = document.getElementById('progress-segments');
 const chapterPill = document.getElementById('chapter-pill');
 const cardCounter = document.getElementById('card-counter');
 const btnPrev = document.getElementById('btn-prev');
 const btnNext = document.getElementById('btn-next');
 const tapPrev = document.getElementById('tap-prev');
 const tapNext = document.getElementById('tap-next');
-const btnReplay = document.getElementById('btn-replay');
-const flapBoxes = Array.from(document.querySelectorAll('.flap-box'));
 
 let currentIndex = 0;
-const totalCards = cards.length;
-const chapterNames = ['Start', '1: Ed', '2: Leslie', 'The End'];
+const pages = storyBoard.pages || [];
+const totalCards = pages.length;
+
+// Render deck DOM dynamically from story-board.json
+function renderDeckDOM() {
+  if (!deckStage || !progressSegmentsContainer) return;
+
+  // 1. Render progress segments
+  progressSegmentsContainer.innerHTML = pages.map((_, i) => `
+    <div class="progress-segment ${i === 0 ? 'is-active' : ''}" data-index="${i}">
+      <div class="progress-fill"></div>
+    </div>
+  `).join('');
+
+  // 2. Render cards
+  deckStage.innerHTML = pages.map((page, i) => {
+    if (page.type === 'cover') {
+      return `
+        <section class="story-card card-cover ${i === 0 ? 'is-active' : 'is-next'}" data-index="${i}">
+          <div>
+            <span class="cover-badge">${page.text1 || page.badge || 'Story Cards'}</span>
+            <h1 class="hero-title">${page.title}</h1>
+            <p class="story-subtitle">${page.text2 || page.subtitle || ''}</p>
+          </div>
+
+          <div class="illustration-stage">
+            <div class="flap-box" data-card="${i}" title="Tap to lift flap">
+              <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} revealed" class="lower-art" />
+              <div class="upper-door">
+                <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} cover" class="upper-art" />
+              </div>
+              <div class="flap-hint-pill">Peek inside 👆</div>
+            </div>
+          </div>
+
+          <div>
+            <p class="deck-instruction">${page.caption || 'Tap right to flip card • Tap art to lift flap'}</p>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'end') {
+      return `
+        <section class="story-card card-end ${i === 0 ? 'is-active' : ''}" data-index="${i}">
+          <div>
+            <span class="end-ribbon">${page.text1 || page.ribbon || 'Special Edition'}</span>
+            <h2 class="end-title">${page.title}</h2>
+            <p class="end-message">${page.text2 || page.narrative || ''}</p>
+          </div>
+
+          <div class="illustration-stage">
+            <div class="flap-box" data-card="${i}" title="${page.characterName || 'Hero'}">
+              <img src="${page.lowerArt}" alt="Celebration" class="lower-art" />
+              <div class="upper-door is-lifted">
+                <img src="${page.upperArt}" alt="Celebration" class="upper-art" />
+              </div>
+            </div>
+          </div>
+
+          <div class="end-actions">
+            <button class="btn-replay" id="btn-replay">↺ Replay Story Cards</button>
+          </div>
+        </section>
+      `;
+    }
+
+    // Standard story card
+    return `
+      <section class="story-card card-story ${i === 0 ? 'is-active' : (i === 1 ? 'is-next' : 'is-next-2')}" data-index="${i}">
+        <div class="card-meta-row">
+          <span class="chapter-badge">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+          <span class="card-num">${String(page.pageNumber || i).padStart(2, '0')}</span>
+        </div>
+
+        <div>
+          <h2 class="card-heading">${page.title}</h2>
+          <p class="card-narrative">${page.text2 || page.narrative || ''}</p>
+        </div>
+
+        <div class="illustration-stage">
+          <div class="flap-box" data-card="${i}" title="Tap to lift flap">
+            <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} inside" class="lower-art" />
+            <div class="upper-door">
+              <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} outside" class="upper-art" />
+            </div>
+            <div class="flap-hint-pill">Lift flap 👆</div>
+          </div>
+        </div>
+
+        <div>
+          <p class="deck-instruction">${page.caption || 'Tap illustration to peek inside'}</p>
+        </div>
+      </section>
+    `;
+  }).join('');
+}
+
+renderDeckDOM();
+
+const cards = Array.from(document.querySelectorAll('.story-card'));
+const segments = Array.from(document.querySelectorAll('.progress-segment'));
+const flapBoxes = Array.from(document.querySelectorAll('.flap-box'));
+const btnReplay = document.getElementById('btn-replay');
 
 function updateDeckState(targetIndex) {
   if (targetIndex < 0 || targetIndex >= totalCards) return;
@@ -42,7 +143,7 @@ function updateDeckState(targetIndex) {
 
   // 3. Update top nav pills
   if (chapterPill) {
-    chapterPill.textContent = chapterNames[currentIndex] || `Card ${currentIndex + 1}`;
+    chapterPill.textContent = pages[currentIndex]?.navLabel || `Card ${currentIndex + 1}`;
   }
   if (cardCounter) {
     cardCounter.textContent = `${currentIndex + 1} / ${totalCards}`;
@@ -55,7 +156,6 @@ function updateDeckState(targetIndex) {
 
 window.goToCard = updateDeckState;
 
-// Navigation Handlers
 function nextCard() {
   if (currentIndex < totalCards - 1) {
     updateDeckState(currentIndex + 1);
@@ -88,7 +188,7 @@ tapNext?.addEventListener('click', (e) => {
   nextCard();
 });
 
-// Click segmented progress bar directly to jump to card
+// Click progress segment to jump directly
 segments.forEach((seg, idx) => {
   seg.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -99,10 +199,9 @@ segments.forEach((seg, idx) => {
 // Replay button on final card
 btnReplay?.addEventListener('click', (e) => {
   e.stopPropagation();
-  // Reset all flaps
   flapBoxes.forEach((box) => {
     const door = box.querySelector('.upper-door');
-    if (door && box.getAttribute('data-card') !== '3') {
+    if (door && box.getAttribute('data-card') !== String(totalCards - 1)) {
       door.classList.remove('is-lifted');
     }
     box.classList.remove('is-revealed');
@@ -142,7 +241,6 @@ window.addEventListener('touchend', (e) => {
   const diffY = touchEndY - touchStartY;
   const timeDiff = Date.now() - touchStartTime;
 
-  // Check horizontal swipe
   if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40 && timeDiff < 600) {
     if (diffX < 0) {
       nextCard();
@@ -161,5 +259,4 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Initial boot
 updateDeckState(0);

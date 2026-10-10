@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Story Cards Deck — Sherry's Storybook</title>
+  <title>Story Cards Deck — Magic Storybook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -17,20 +17,7 @@
   <div class="story-deck-app" id="story-deck-app">
     <!-- Top Story Header with Segmented Progress Bars -->
     <header class="deck-header">
-      <div class="progress-segments" id="progress-segments">
-        <div class="progress-segment is-active" data-index="0">
-          <div class="progress-fill"></div>
-        </div>
-        <div class="progress-segment" data-index="1">
-          <div class="progress-fill"></div>
-        </div>
-        <div class="progress-segment" data-index="2">
-          <div class="progress-fill"></div>
-        </div>
-        <div class="progress-segment" data-index="3">
-          <div class="progress-fill"></div>
-        </div>
-      </div>
+      <div class="progress-segments" id="progress-segments"></div>
 
       <div class="header-nav">
         <a href="../" class="back-link">‹ All Styles</a>
@@ -43,107 +30,8 @@
     <div class="tap-zone tap-zone-left" id="tap-prev" aria-label="Previous card"></div>
     <div class="tap-zone tap-zone-right" id="tap-next" aria-label="Next card"></div>
 
-    <!-- 3D Card Stack Stage -->
-    <main class="deck-stage" id="deck-stage">
-      <!-- Card 0: Cover / Start -->
-      <section class="story-card card-cover is-active" data-index="0">
-        <div>
-          <span class="cover-badge">Story Cards Deck</span>
-          <h1 class="hero-title">Sherry & Friends</h1>
-          <p class="story-subtitle">A Magical Tale of Fun & Friendship</p>
-        </div>
-
-        <div class="illustration-stage">
-          <div class="flap-box" data-card="0" title="Tap to lift flap">
-            <img src="../resources/png/sg-2.png" alt="Sherry revealed inside" class="lower-art" />
-            <div class="upper-door">
-              <img src="../resources/png/sg-1.png" alt="Sherry cover" class="upper-art" />
-            </div>
-            <div class="flap-hint-pill">Peek inside 👆</div>
-          </div>
-        </div>
-
-        <div>
-          <p class="deck-instruction">Tap right to flip card • Tap art to lift flap</p>
-        </div>
-      </section>
-
-      <!-- Card 1: Meet Ed -->
-      <section class="story-card card-story is-next" data-index="1">
-        <div class="card-meta-row">
-          <span class="chapter-badge">Chapter One</span>
-          <span class="card-num">01</span>
-        </div>
-
-        <div>
-          <h2 class="card-heading">Meet Ed!</h2>
-          <p class="card-narrative">Once upon a sunny afternoon, Ed was full of cheerful ideas and ready for an adventure.</p>
-        </div>
-
-        <div class="illustration-stage">
-          <div class="flap-box" data-card="1" title="Tap to lift flap">
-            <img src="../resources/jpg/ed-2.jpg" alt="Ed inside" class="lower-art" />
-            <div class="upper-door">
-              <img src="../resources/jpg/ed-1.jpg" alt="Ed outside" class="upper-art" />
-            </div>
-            <div class="flap-hint-pill">Lift flap 👆</div>
-          </div>
-        </div>
-
-        <div>
-          <p class="deck-instruction">Tap illustration to peek inside</p>
-        </div>
-      </section>
-
-      <!-- Card 2: Leslie Joins In -->
-      <section class="story-card card-story is-next-2" data-index="2">
-        <div class="card-meta-row">
-          <span class="chapter-badge">Chapter Two</span>
-          <span class="card-num">02</span>
-        </div>
-
-        <div>
-          <h2 class="card-heading">Leslie's Turn!</h2>
-          <p class="card-narrative">Leslie arrived with bright laughter and boundless energy, making every moment unforgettable.</p>
-        </div>
-
-        <div class="illustration-stage">
-          <div class="flap-box" data-card="2" title="Tap to lift flap">
-            <img src="../resources/png/les-2.png" alt="Leslie revealed" class="lower-art" />
-            <div class="upper-door">
-              <img src="../resources/png/les-1.png" alt="Leslie" class="upper-art" />
-            </div>
-            <div class="flap-hint-pill">Lift flap 👆</div>
-          </div>
-        </div>
-
-        <div>
-          <p class="deck-instruction">Tap illustration to peek inside</p>
-        </div>
-      </section>
-
-      <!-- Card 3: The End -->
-      <section class="story-card card-end" data-index="3">
-        <div>
-          <span class="end-ribbon">Special Edition</span>
-          <h2 class="end-title">The End ✨</h2>
-          <p class="end-message">Thank you for joining our magical tale! Happy memories and laughter forever.</p>
-        </div>
-
-        <div class="illustration-stage">
-          <div class="flap-box" data-card="3" title="Sherry">
-            <img src="../resources/png/sg-2.png" alt="Sherry celebration" class="lower-art" />
-            <div class="upper-door is-lifted">
-              <img src="../resources/png/sg-1.png" alt="Sherry" class="upper-art" />
-            </div>
-          </div>
-        </div>
-
-        <div class="end-actions">
-          <button class="btn-replay" id="btn-replay">↺ Replay Story Cards</button>
-        </div>
-      </section>
-    </main>
+    <!-- 3D Card Stack Stage (dynamically populated from resources/story-board.json) -->
+    <main class="deck-stage" id="deck-stage"></main>
 
     <!-- Bottom Navigation Toolbar -->
     <footer class="deck-footer">

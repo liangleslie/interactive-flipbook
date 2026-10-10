@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Vertical Storyboard — Sherry's Storybook</title>
+  <title>Vertical Storyboard — Magic Storybook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -21,115 +21,11 @@
       <div class="chapter-pill" id="chapter-pill">Start</div>
     </header>
 
-    <!-- Right-Edge Vertical Snap Tracker Dots -->
-    <div class="vertical-tracker" id="vertical-tracker" aria-label="Sections">
-      <button class="tracker-node is-active" data-index="0" aria-label="Cover"></button>
-      <button class="tracker-node" data-index="1" aria-label="Ed"></button>
-      <button class="tracker-node" data-index="2" aria-label="Leslie"></button>
-      <button class="tracker-node" data-index="3" aria-label="End"></button>
-    </div>
+    <!-- Right-Edge Vertical Snap Tracker Dots (dynamically populated) -->
+    <div class="vertical-tracker" id="vertical-tracker" aria-label="Sections"></div>
 
-    <!-- Vertical Snap Scroll Viewport -->
-    <main class="feed-viewport" id="feed-viewport">
-      <!-- Section 0: Cover -->
-      <section class="feed-section section-cover" id="section-0" data-index="0">
-        <div>
-          <span class="cover-badge">Vertical Feed</span>
-          <h1 class="hero-title">Sherry & Friends</h1>
-          <p class="story-subtitle">A Magical Tale of Fun & Friendship</p>
-        </div>
-
-        <div class="illustration-container">
-          <div class="flap-box" data-section="0" title="Tap to lift flap">
-            <img src="../resources/png/sg-2.png" alt="Sherry revealed inside" class="lower-art" />
-            <div class="upper-flap">
-              <img src="../resources/png/sg-1.png" alt="Sherry cover" class="upper-art" />
-            </div>
-            <div class="flap-hint-pill">Peek inside 👆</div>
-          </div>
-        </div>
-
-        <div class="section-footer-cue">
-          <span>Scroll down to begin ▼</span>
-        </div>
-      </section>
-
-      <!-- Section 1: Meet Ed -->
-      <section class="feed-section section-story" id="section-1" data-index="1">
-        <div class="section-meta-row">
-          <span class="chapter-tag">Chapter One</span>
-          <span class="page-indicator">01</span>
-        </div>
-
-        <div>
-          <h2 class="section-heading">Meet Ed!</h2>
-          <p class="section-narrative">Once upon a sunny afternoon, Ed was full of cheerful ideas and ready for an adventure.</p>
-        </div>
-
-        <div class="illustration-container">
-          <div class="flap-box" data-section="1" title="Tap to lift flap">
-            <img src="../resources/jpg/ed-2.jpg" alt="Ed inside" class="lower-art" />
-            <div class="upper-flap">
-              <img src="../resources/jpg/ed-1.jpg" alt="Ed outside" class="upper-art" />
-            </div>
-            <div class="flap-hint-pill">Lift flap 👆</div>
-          </div>
-        </div>
-
-        <div class="section-footer-cue">
-          <span>Scroll for next chapter ▼</span>
-        </div>
-      </section>
-
-      <!-- Section 2: Leslie's Turn -->
-      <section class="feed-section section-story" id="section-2" data-index="2">
-        <div class="section-meta-row">
-          <span class="chapter-tag">Chapter Two</span>
-          <span class="page-indicator">02</span>
-        </div>
-
-        <div>
-          <h2 class="section-heading">Leslie's Turn!</h2>
-          <p class="section-narrative">Leslie arrived with bright laughter and boundless energy, making every moment unforgettable.</p>
-        </div>
-
-        <div class="illustration-container">
-          <div class="flap-box" data-section="2" title="Tap to lift flap">
-            <img src="../resources/png/les-2.png" alt="Leslie revealed" class="lower-art" />
-            <div class="upper-flap">
-              <img src="../resources/png/les-1.png" alt="Leslie" class="upper-art" />
-            </div>
-            <div class="flap-hint-pill">Lift flap 👆</div>
-          </div>
-        </div>
-
-        <div class="section-footer-cue">
-          <span>Scroll to reach the end ▼</span>
-        </div>
-      </section>
-
-      <!-- Section 3: The End -->
-      <section class="feed-section section-end" id="section-3" data-index="3">
-        <div>
-          <span class="end-ribbon">To Sherry With Love</span>
-          <h2 class="end-title">The End ✨</h2>
-          <p class="end-narrative">Thank you for joining our magical tale! Happy memories and laughter forever.</p>
-        </div>
-
-        <div class="illustration-container">
-          <div class="flap-box" data-section="3" title="Sherry">
-            <img src="../resources/png/sg-2.png" alt="Sherry celebration" class="lower-art" />
-            <div class="upper-flap is-lifted">
-              <img src="../resources/png/sg-1.png" alt="Sherry" class="upper-art" />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <button class="btn-restart" id="btn-restart">▲ Scroll Back to Top</button>
-        </div>
-      </section>
-    </main>
+    <!-- Vertical Snap Scroll Viewport (dynamically populated from resources/story-board.json) -->
+    <main class="feed-viewport" id="feed-viewport"></main>
 
     <!-- Floating Bottom Navigation Bar -->
     <footer class="feed-controls">

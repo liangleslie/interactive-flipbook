@@ -1,16 +1,108 @@
-// Continuous Panorama Engine with Scroll-Driven Stationary Pin & Morph Engine
+// Continuous Panorama Engine — Dynamically loaded from resources/story-board.json
+import storyBoard from '../resources/story-board.json';
 
 const viewport = document.getElementById('panorama-viewport');
-const scenes = Array.from(document.querySelectorAll('.scene-station'));
-const landmarkNodes = Array.from(document.querySelectorAll('.landmark-node'));
+const journeyTrack = document.getElementById('journey-track');
+const panoramaWorld = document.getElementById('panorama-world');
 const prevBtn = document.getElementById('btn-prev');
 const nextBtn = document.getElementById('btn-next');
 const chapterLabel = document.getElementById('chapter-label');
 const journeyProgress = document.getElementById('journey-progress');
+
+const pages = storyBoard.pages || [];
+const sceneNames = pages.map(p => p.navLabel || p.title);
+
+// Render stations and landmarks dynamically
+function renderPanoramaDOM() {
+  if (!panoramaWorld || !journeyTrack) return;
+
+  // 1. Render landmark nodes inside #journey-track (keep existing journey-line)
+  const existingLine = journeyTrack.querySelector('.journey-line');
+  journeyTrack.innerHTML = '';
+  if (existingLine) journeyTrack.appendChild(existingLine);
+
+  pages.forEach((page, i) => {
+    const node = document.createElement('button');
+    node.className = `landmark-node ${i === 0 ? 'is-active' : ''}`;
+    node.setAttribute('data-scene', i);
+    node.setAttribute('aria-label', page.navLabel || `Scene ${i + 1}`);
+    node.innerHTML = `
+      <span class="node-dot"></span>
+      <span class="node-label">${page.navLabel || `Scene ${i + 1}`}</span>
+    `;
+    journeyTrack.appendChild(node);
+  });
+
+  // 2. Render scene stations in #panorama-world
+  panoramaWorld.innerHTML = pages.map((page, i) => {
+    if (page.type === 'cover') {
+      return `
+        <section class="scene-station scene-start" id="scene-${i}" data-index="${i}">
+          <div class="station-flow">
+            <span class="scene-badge">${page.text1 || page.badge || 'Special Edition'}</span>
+            <h1 class="hero-title">${page.title}</h1>
+            <p class="story-subtitle">${page.text2 || page.subtitle || ''}</p>
+
+            <div class="character-spot">
+              <div class="character-morph-target" data-index="${i}" title="Tap or scroll to morph">
+                <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} revealed" class="character-img lower-art" />
+                <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} cover" class="character-img upper-art" />
+              </div>
+            </div>
+
+            <div class="scroll-cue">
+              <span>${page.cue || 'Scroll along the path ➔'}</span>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'end') {
+      return `
+        <section class="scene-station scene-end" id="scene-${i}" data-index="${i}">
+          <div class="station-flow end-flow">
+            <div class="end-star">🌟</div>
+            <h2 class="end-heading">${page.title}</h2>
+            <p class="end-dedication">${page.text2 || page.narrative || ''}</p>
+            <div class="end-tag">${page.text1 || page.ribbon || 'Continuous Story Panorama'}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    // Story station
+    return `
+      <section class="scene-station scene-${page.id || i}" id="scene-${i}" data-index="${i}">
+        <div class="station-flow">
+          <div class="chapter-badge-row">
+            <span class="page-number">${page.pageNumber || i}</span>
+            <span class="chapter-tag">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+          </div>
+          <h2 class="scene-heading">${page.title}</h2>
+          <p class="scene-narrative">${page.text2 || page.narrative || ''}</p>
+
+          <div class="character-spot">
+            <div class="character-morph-target" data-index="${i}" title="Tap or scroll to morph">
+              <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} inside" class="character-img lower-art" />
+              <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} outside" class="character-img upper-art" />
+            </div>
+          </div>
+
+          <p class="story-caption">${page.caption || 'Scrolling centers character & morphs into the story'}</p>
+        </div>
+      </section>
+    `;
+  }).join('');
+}
+
+renderPanoramaDOM();
+
+const scenes = Array.from(document.querySelectorAll('.scene-station'));
+const landmarkNodes = Array.from(document.querySelectorAll('.landmark-node'));
 const morphTargets = Array.from(document.querySelectorAll('.character-morph-target'));
 
 let currentSceneIndex = 0;
-const sceneNames = ['Start', '1: Ed', '2: Leslie', 'The End'];
 
 // Pronounced scroll-pin budget for each character station (in pixels of scroll delta)
 const D_PRE = 260;    // Phase 1: Pronounced pre-morph linger at center (stationary, upper-art registered)
@@ -44,7 +136,6 @@ function getSceneCenterScroll(idx) {
 }
 window.getSceneCenterScroll = getSceneCenterScroll;
 
-// ponytail: calculates active chapter index with clamp linger windows and travel midpoints
 function getActiveSceneIndex(S) {
   const S0 = getSceneCenterScroll(0);
   const S1 = getSceneCenterScroll(1);
@@ -62,7 +153,6 @@ function getActiveSceneIndex(S) {
 }
 window.getActiveSceneIndex = getActiveSceneIndex;
 
-// Center specific scene smoothly
 function scrollToScene(idx) {
   if (idx < 0 || idx >= scenes.length) return;
   if (!viewport) return;
@@ -77,35 +167,30 @@ function scrollToScene(idx) {
 }
 window.scrollToScene = scrollToScene;
 
-// Navigation buttons
 prevBtn?.addEventListener('click', () => scrollToScene(currentSceneIndex - 1));
 nextBtn?.addEventListener('click', () => scrollToScene(currentSceneIndex + 1));
 
-// Landmark nodes (journey progress dots)
 landmarkNodes.forEach((node, idx) => {
   node.addEventListener('click', () => scrollToScene(idx));
 });
 
-// Keyboard arrows
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight' || e.key === 'PageDown') scrollToScene(currentSceneIndex + 1);
   if (e.key === 'ArrowLeft' || e.key === 'PageUp') scrollToScene(currentSceneIndex - 1);
 });
 
-// ponytail: smooth velvety resistance during the stationary pin & morph window
 function getCenterFriction() {
   const S = viewport.scrollLeft;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < scenes.length - 1; i++) {
     const sc = getSceneCenterScroll(i);
     const delta = S - sc;
     if (delta >= 0 && delta <= D_TOTAL) {
-      return 0.85; // smooth gliding through the stationary morph
+      return 0.85;
     }
   }
   return 1.05;
 }
 
-// Continuous mouse wheel horizontal gliding with subconscious morph resistance
 window.addEventListener('wheel', (e) => {
   if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
   if (Math.abs(e.deltaY) < 4) return;
@@ -115,10 +200,9 @@ window.addEventListener('wheel', (e) => {
   viewport.scrollLeft += e.deltaY * friction;
 }, { passive: false });
 
-// ponytail: computes accumulated background counter-shift so scenery stays 100% stationary during clamping
 function getBackgroundShift(S) {
   let shift = 0;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < scenes.length - 1; i++) {
     const S_center = getSceneCenterScroll(i);
     const delta = S - S_center;
     if (delta <= 0) {
@@ -134,16 +218,10 @@ function getBackgroundShift(S) {
 }
 window.getBackgroundShift = getBackgroundShift;
 
-// ponytail: 4-phase scroll pin & morph engine:
-// 1. Pre-morph linger at center: stationary, upper-art stays so image registers
-// 2. Gradual morph: stationary at center, image cross-dissolves as user scrolls
-// 3. Post-morph linger: stationary at center, fully morphed image lingers
-// 4. Release: resumes horizontal motion off to the left
 function updateScrollDrivenMorphs() {
   if (!viewport) return;
   const S = viewport.scrollLeft;
 
-  // Counter-translate background and scenery so world stays 100% stationary during clamping
   const bgShift = getBackgroundShift(S);
   const visualBgX = Math.round(bgShift - S);
 
@@ -162,8 +240,7 @@ function updateScrollDrivenMorphs() {
     const upper = scene.querySelector('.character-morph-target .upper-art');
     const lower = scene.querySelector('.character-morph-target .lower-art');
 
-    if (i >= 3) {
-      // Scene 3 (The End): no character morph, natural arrival
+    if (i >= scenes.length - 1) {
       if (flow) flow.style.transform = 'none';
       return;
     }
@@ -176,27 +253,22 @@ function updateScrollDrivenMorphs() {
     let phase = '';
 
     if (delta < 0) {
-      // Approaching center from the right: natural motion, pre-morph state
       shift = 0;
       morphProgress = 0;
     } else if (delta < D_PRE) {
-      // Phase 1: Station is at center -> stays stationary for pre-morph linger
       shift = delta;
       morphProgress = 0;
       phase = 'pre-linger';
     } else if (delta < D_PRE + D_MORPH) {
-      // Phase 2: Still stationary at center -> image gradually morphs as user scrolls
       shift = delta;
       const raw = (delta - D_PRE) / D_MORPH;
       morphProgress = Math.sin((raw * Math.PI) / 2);
       phase = 'morphing';
     } else if (delta < D_TOTAL) {
-      // Phase 3: Still stationary at center -> post-morph linger so revealed image registers
       shift = delta;
       morphProgress = 1;
       phase = 'post-linger';
     } else {
-      // Phase 4: Released! Resumes moving horizontally to the left
       shift = D_TOTAL;
       morphProgress = 1;
     }
@@ -206,12 +278,10 @@ function updateScrollDrivenMorphs() {
       else morphTarget.removeAttribute('data-phase');
     }
 
-    // Counter-translate station flow so it visually stays at 50vw center during pin window
     if (flow) {
       flow.style.transform = `translateX(${Math.round(shift)}px)`;
     }
 
-    // Morph opacity and subtle scale
     if (upper && lower && !morphTarget?.classList.contains('is-pinned')) {
       upper.style.opacity = (1 - morphProgress).toFixed(3);
       upper.style.transform = `translate(-50%, -50%) scale(${(1 + 0.05 * morphProgress).toFixed(3)})`;
@@ -223,7 +293,6 @@ function updateScrollDrivenMorphs() {
 }
 window.updateScrollDrivenMorphs = updateScrollDrivenMorphs;
 
-// Tap on character morph target -> pins morph state (toggles upper <-> lower)
 morphTargets.forEach((target) => {
   target.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -243,20 +312,17 @@ morphTargets.forEach((target) => {
   });
 });
 
-// Real-time scroll handler: updates journey progress bar, closest scene label, and character morphs
 let ticking = false;
 
 function handleScroll() {
   if (!viewport) return;
 
-  // 1. Update journey progress bar %
   const maxScroll = Math.max(1, viewport.scrollWidth - viewport.clientWidth);
   if (journeyProgress) {
     const pct = (viewport.scrollLeft / maxScroll) * 100;
     journeyProgress.style.width = `${Math.min(100, Math.max(0, pct))}%`;
   }
 
-  // 2. Identify active scene using clamp-aware interval logic
   const S = viewport.scrollLeft;
   const activeIdx = getActiveSceneIndex(S);
 
@@ -264,7 +330,6 @@ function handleScroll() {
     updateSceneUI(activeIdx);
   }
 
-  // 3. Scroll-driven character stationary pin & morph update
   updateScrollDrivenMorphs();
 }
 window.handleScroll = handleScroll;
@@ -279,7 +344,6 @@ viewport?.addEventListener('scroll', () => {
   }
 }, { passive: true });
 
-// Initial boot: start with cover centered at scrollLeft = 0
 if (viewport) viewport.scrollLeft = 0;
 updateSceneUI(0);
 handleScroll();

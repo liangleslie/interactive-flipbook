@@ -1,7 +1,7 @@
 {
   "name": "for-sherry",
   "version": "1.0.0",
-  "description": "Children flipbook ebook for Sherry",
+  "description": "Interactive children storybook",
   "type": "module",
   "scripts": {
     "dev": "vite",

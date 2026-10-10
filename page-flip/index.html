@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sherry's Adventure Book — Responsive Flipbook</title>
+  <title>Magic Storybook — Responsive Flipbook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -18,84 +18,19 @@
     <!-- Top Nav / Back to All Styles -->
     <div class="top-nav">
       <a href="../" class="back-link">‹ All Styles</a>
-      <div class="mobile-step-pills" id="mobile-pills">
-        <span class="pill-dot is-active" data-step="0"></span>
-        <span class="pill-dot" data-step="1"></span>
-        <span class="pill-dot" data-step="2"></span>
-        <span class="pill-dot" data-step="3"></span>
-      </div>
+      <div class="mobile-step-pills" id="mobile-pills"></div>
     </div>
 
     <!-- Header / Title -->
     <header class="app-header">
-      <h1 class="book-title">✨ Sherry's Magic Storybook ✨</h1>
+      <h1 class="book-title">✨ Magic Storybook ✨</h1>
       <p class="book-subtitle" id="book-subtitle">Click pages or use arrow keys to flip</p>
     </header>
 
-    <!-- Book Stage -->
+    <!-- Book Stage (dynamically populated from resources/story-board.json) -->
     <main class="book-stage">
       <div class="book-container" id="book-container">
-        <div class="c-flipbook" id="flipbook">
-          <!-- Page 1: Front Cover -->
-          <div class="c-flipbook__page page-cover page-front-cover">
-            <div class="cover-inner">
-              <span class="cover-badge">Special Edition</span>
-              <h2 class="cover-title">Sherry & Friends</h2>
-              <div class="cover-art">
-                <img src="../resources/png/sg-2.png" alt="Sherry lower" class="character-hero lower-art" />
-                <div class="upper-wrapper">
-                  <img src="../resources/png/sg-1.png" alt="Sherry upper" class="character-hero upper-art" />
-                </div>
-              </div>
-              <p class="cover-author">A Tale of Fun & Friendship</p>
-              <div class="cover-tap-hint">Tap to open ➔</div>
-            </div>
-          </div>
-
-          <!-- Page 2: Inside Front Cover (Left Page) -> Story Page 1 -->
-          <div class="c-flipbook__page page-story page-left">
-            <div class="story-content">
-              <span class="page-number">1</span>
-              <h3>Meet Ed!</h3>
-              <p>Once upon a sunny afternoon, Ed was full of cheerful ideas and ready to explore.</p>
-              <div class="page-illustration">
-                <img src="../resources/jpg/ed-2.jpg" alt="Ed lower" class="story-img lower-art" />
-                <div class="upper-wrapper">
-                  <img src="../resources/jpg/ed-1.jpg" alt="Ed upper" class="story-img upper-art" />
-                </div>
-              </div>
-              <p class="story-caption">Tap Ed to see what happens!</p>
-            </div>
-          </div>
-
-          <!-- Page 3: Story Page 2 (Right Page) -->
-          <div class="c-flipbook__page page-story page-right">
-            <div class="story-content">
-              <span class="page-number">2</span>
-              <h3>Meet Leslie!</h3>
-              <p>Leslie joined in with curious gadgets and big smiles, ready for the adventure ahead.</p>
-              <div class="page-illustration">
-                <img src="../resources/png/les-2.png" alt="Leslie lower" class="story-img lower-art" />
-                <div class="upper-wrapper">
-                  <img src="../resources/png/les-1.png" alt="Leslie upper" class="story-img upper-art" />
-                </div>
-              </div>
-              <p class="story-caption">Tap Leslie to see what happens!</p>
-            </div>
-          </div>
-
-          <!-- Page 4: Back Cover -->
-          <div class="c-flipbook__page page-cover page-back-cover">
-            <div class="cover-inner back-inner">
-              <div class="back-logo">🌟</div>
-              <h2>The End</h2>
-              <p>Made with love for Sherry.</p>
-              <div class="back-footer">
-                <span>flipbook-js</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="c-flipbook" id="flipbook"></div>
       </div>
     </main>
 
