@@ -1,7 +1,9 @@
 import { resolve } from 'path';
+import { cpSync } from 'fs';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: './',
   build: {
     rollupOptions: {
       input: {
@@ -14,4 +16,14 @@ export default defineConfig({
       },
     },
   },
+  plugins: [
+    // ponytail: copy static resources/ directly into dist/resources/ so dynamic runtime URLs resolve
+    {
+      name: 'copy-resources',
+      closeBundle() {
+        cpSync(resolve(import.meta.dirname, 'resources'), resolve(import.meta.dirname, 'dist/resources'), { recursive: true });
+      },
+    },
+  ],
 });
+
