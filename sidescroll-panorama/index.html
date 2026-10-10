@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Sherry's Adventure — Continuous Story Panorama</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div class="panorama-app">
+    <!-- Top Nav Floating Header -->
+    <header class="top-nav">
+      <a href="../" class="back-link">‹ All Styles</a>
+
+      <!-- Continuous Journey Trail Tracker -->
+      <div class="journey-track" id="journey-track">
+        <div class="journey-line">
+          <div class="journey-progress" id="journey-progress"></div>
+        </div>
+        <button class="landmark-node is-active" data-scene="0" aria-label="Start">
+          <span class="node-dot"></span>
+          <span class="node-label">Start</span>
+        </button>
+        <button class="landmark-node" data-scene="1" aria-label="Ed">
+          <span class="node-dot"></span>
+          <span class="node-label">Ed</span>
+        </button>
+        <button class="landmark-node" data-scene="2" aria-label="Leslie">
+          <span class="node-dot"></span>
+          <span class="node-label">Leslie</span>
+        </button>
+        <button class="landmark-node" data-scene="3" aria-label="End">
+          <span class="node-dot"></span>
+          <span class="node-label">End</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Fixed Environmental Landscape Backdrop (decoupled from scroll container to prevent blank space / scrollWidth inflation) -->
+    <div class="panorama-backdrop-container" id="panorama-backdrop-container" aria-hidden="true">
+      <div class="panorama-backdrop-layer"></div>
+      <div class="panorama-sky-tint"></div>
+
+      <!-- Scripted Path Animated Sprites for Dynamic Liveliness -->
+      <div class="sprite-track-layer">
+        <!-- Butterfly Sprite -->
+        <div class="scripted-sprite sprite-butterfly" aria-hidden="true">
+          <svg class="sprite-graphic svg-butterfly" viewBox="0 0 40 32" width="36" height="28">
+            <path d="M20 16 C16 4 4 4 6 16 C8 24 18 20 20 16 Z" fill="#f43f5e" />
+            <path d="M20 16 C24 4 36 4 34 16 C32 24 22 20 20 16 Z" fill="#fb7185" />
+            <ellipse cx="20" cy="16" rx="2" ry="7" fill="#881337" />
+          </svg>
+        </div>
+
+        <!-- Soaring Songbird Sprite -->
+        <div class="scripted-sprite sprite-bird" aria-hidden="true">
+          <svg class="sprite-graphic svg-bird" viewBox="0 0 44 32" width="38" height="28">
+            <path d="M8 20 C14 12 28 8 36 12 C38 18 32 24 24 24 C16 24 10 26 8 20 Z" fill="#38bdf8" />
+            <path d="M18 16 C22 6 32 8 26 18 Z" fill="#0284c7" />
+            <polygon points="36,13 42,16 36,18" fill="#f59e0b" />
+            <circle cx="31" cy="14" r="1.5" fill="#0f172a" />
+          </svg>
+        </div>
+
+        <!-- Hot Air Balloon Sprite -->
+        <div class="scripted-sprite sprite-balloon" aria-hidden="true">
+          <svg class="sprite-graphic svg-balloon" viewBox="0 0 40 50" width="34" height="42">
+            <path d="M20 2 C9 2 2 11 2 22 C2 30 14 36 17 38 L23 38 C26 36 38 30 38 22 C38 11 31 2 20 2 Z" fill="#f97316" />
+            <path d="M12 2 C8 10 8 24 17 38 L20 38 L20 2 Z" fill="#fbbf24" />
+            <path d="M28 2 C32 10 32 24 23 38 L20 38 L20 2 Z" fill="#fbbf24" />
+            <rect x="16" y="42" width="8" height="6" rx="2" fill="#92400e" />
+            <line x1="17" y1="38" x2="17" y2="42" stroke="#78350f" stroke-width="1.2" />
+            <line x1="23" y1="38" x2="23" y2="42" stroke="#78350f" stroke-width="1.2" />
+          </svg>
+        </div>
+
+        <!-- Twilight Firefly Glow -->
+        <div class="scripted-sprite sprite-firefly" aria-hidden="true">
+          <div class="firefly-core"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Continuous Panorama Viewport -->
+    <main class="panorama-viewport" id="panorama-viewport">
+      <div class="panorama-world" id="panorama-world">
+
+        <!-- Scene 0: Start / Sherry -->
+        <section class="scene-station scene-start" id="scene-0" data-index="0">
+          <div class="station-flow">
+            <span class="scene-badge">Special Edition</span>
+            <h1 class="hero-title">Sherry & Friends</h1>
+            <p class="story-subtitle">A Tale of Fun & Friendship</p>
+
+            <div class="character-spot">
+              <div class="character-morph-target" data-index="0" title="Tap or scroll to morph">
+                <img src="../resources/png/sg-2.png" alt="Sherry revealed" class="character-img lower-art" />
+                <img src="../resources/png/sg-1.png" alt="Sherry cover" class="character-img upper-art" />
+              </div>
+            </div>
+
+            <div class="scroll-cue">
+              <span>Scroll along the path ➔</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Scene 1: Ed's Meadow -->
+        <section class="scene-station scene-ed" id="scene-1" data-index="1">
+          <div class="station-flow">
+            <div class="chapter-badge-row">
+              <span class="page-number">1</span>
+              <span class="chapter-tag">Chapter One</span>
+            </div>
+            <h2 class="scene-heading">Meet Ed!</h2>
+            <p class="scene-narrative">Once upon a sunny afternoon, Ed was full of cheerful ideas and ready to explore.</p>
+
+            <div class="character-spot">
+              <div class="character-morph-target" data-index="1" title="Tap or scroll to morph">
+                <img src="../resources/jpg/ed-2.jpg" alt="Ed inside" class="character-img lower-art" />
+                <img src="../resources/jpg/ed-1.jpg" alt="Ed outside" class="character-img upper-art" />
+              </div>
+            </div>
+
+            <p class="story-caption">Scrolling centers Ed & morphs into the story</p>
+          </div>
+        </section>
+
+        <!-- Scene 2: Leslie's Grove -->
+        <section class="scene-station scene-leslie" id="scene-2" data-index="2">
+          <div class="station-flow">
+            <div class="chapter-badge-row">
+              <span class="page-number">2</span>
+              <span class="chapter-tag">Chapter Two</span>
+            </div>
+            <h2 class="scene-heading">Meet Leslie!</h2>
+            <p class="scene-narrative">Leslie joined in with curious gadgets and big smiles, ready for the adventure ahead.</p>
+
+            <div class="character-spot">
+              <div class="character-morph-target" data-index="2" title="Tap or scroll to morph">
+                <img src="../resources/png/les-2.png" alt="Leslie revealed" class="character-img lower-art" />
+                <img src="../resources/png/les-1.png" alt="Leslie greeting" class="character-img upper-art" />
+              </div>
+            </div>
+
+            <p class="story-caption">Scrolling centers Leslie & morphs into the adventure</p>
+          </div>
+        </section>
+
+        <!-- Scene 3: Twilight Finale -->
+        <section class="scene-station scene-end" id="scene-3" data-index="3">
+          <div class="station-flow end-flow">
+            <div class="end-star">🌟</div>
+            <h2 class="end-heading">The End</h2>
+            <p class="end-dedication">Made with love for Sherry.</p>
+            <div class="end-tag">Continuous Story Panorama</div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Floating Bottom Navigation -->
+    <footer class="controls-toolbar">
+      <button id="btn-prev" class="control-btn" aria-label="Previous Chapter">
+        <span class="icon">◀</span>
+        <span>Prev</span>
+      </button>
+
+      <div class="chapter-label" id="chapter-label">
+        Start
+      </div>
+
+      <button id="btn-next" class="control-btn" aria-label="Next Chapter">
+        <span>Next</span>
+        <span class="icon">▶</span>
+      </button>
+    </footer>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

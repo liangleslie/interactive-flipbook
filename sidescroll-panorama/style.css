@@ -1,0 +1,679 @@
+:root {
+  --text-dark: #292524;
+  --text-muted: #78716c;
+  --primary-accent: #e11d48;
+  --font-heading: 'Fredoka', cursive, sans-serif;
+  --font-body: 'Nunito', sans-serif;
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --station-width: clamp(320px, 80vw, 540px);
+  --station-gap: clamp(900px, 115vw, 1500px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #fef3c7;
+}
+
+.panorama-app {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating Top Nav & Journey Trail Track */
+.top-nav {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.back-link {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #be123c;
+  text-decoration: none;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px rgba(190, 18, 60, 0.1);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.back-link:hover {
+  background: #fff;
+  transform: translateX(-2px);
+}
+
+.journey-track {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+.journey-line {
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 3px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.journey-progress {
+  height: 100%;
+  width: 0%;
+  background: #e11d48;
+  border-radius: inherit;
+  transition: width 0.08s linear;
+}
+
+.landmark-node {
+  position: relative;
+  z-index: 2;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+}
+
+.node-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94a3b8;
+  border: 2px solid white;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.landmark-node.is-active .node-dot {
+  background: #e11d48;
+  transform: scale(1.35);
+  box-shadow: 0 0 8px rgba(225, 29, 72, 0.5);
+}
+
+.node-label {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .node-label {
+    display: inline-block;
+  }
+}
+
+.landmark-node.is-active .node-label {
+  color: #9f1239;
+}
+
+/* Continuous Panorama Viewport: Free, Un-snapped, Fluid Scroll */
+.panorama-viewport {
+  width: 100vw;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.panorama-viewport:active {
+  cursor: grabbing;
+}
+
+.panorama-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* Continuous World Canvas */
+.panorama-world {
+  display: flex;
+  gap: var(--station-gap);
+  padding-left: calc(50vw - var(--station-width) / 2);
+  padding-right: calc(50vw - var(--station-width) / 2);
+  min-width: max-content;
+  height: 100%;
+  position: relative;
+  overflow: visible;
+}
+
+/* Environmental Backdrop Container (Fixed viewport bounds, zero scrollbar pollution) */
+.panorama-backdrop-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Panoramic Landscape Backdrop Layer (continuous rolling hills & sky) */
+.panorama-backdrop-layer {
+  position: absolute;
+  inset: 0;
+  background-image: url('../resources/jpg/panorama_backdrop.jpg');
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: 0 bottom;
+  pointer-events: none;
+  z-index: 1;
+  will-change: background-position;
+}
+
+/* Smooth Dawn-to-Twilight Sky Tint Overlay */
+.panorama-sky-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(254, 243, 199, 0.08) 0%,
+    rgba(254, 215, 170, 0.08) 25%,
+    rgba(254, 240, 138, 0.06) 50%,
+    rgba(251, 207, 232, 0.12) 75%,
+    rgba(221, 214, 254, 0.2) 90%,
+    rgba(199, 210, 254, 0.28) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Scripted Path Sprites Layer for Dynamic Liveliness */
+.sprite-track-layer {
+  position: absolute;
+  inset: 0;
+  width: 7000px;
+  pointer-events: none;
+  z-index: 3;
+  overflow: visible;
+  will-change: transform;
+}
+
+.scripted-sprite {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform, offset-distance;
+}
+
+/* 1. Fluttering Butterfly along undulating meadow curve */
+.sprite-butterfly {
+  offset-path: path("M 150,320 C 400,160 650,380 950,220 S 1400,120 1750,280 S 2200,160 2600,320 S 3000,180 3400,260");
+  offset-rotate: auto 15deg;
+  animation: glideButterfly 32s infinite ease-in-out alternate;
+}
+
+@keyframes glideButterfly {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.svg-butterfly {
+  animation: flapWings 0.32s infinite alternate ease-in-out;
+  transform-origin: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.18));
+}
+
+@keyframes flapWings {
+  0% {
+    transform: scaleX(1);
+  }
+
+  100% {
+    transform: scaleX(0.25);
+  }
+}
+
+/* 2. Soaring Bird across the high sky */
+.sprite-bird {
+  offset-path: path("M 0,80 C 450,30 900,140 1400,60 S 2100,130 2700,50 S 3200,110 3600,70");
+  offset-rotate: auto;
+  animation: soarBird 36s infinite linear;
+}
+
+@keyframes soarBird {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.svg-bird {
+  animation: wingBeat 0.5s infinite alternate ease-in-out;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes wingBeat {
+  0% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  100% {
+    transform: translateY(-4px) scaleY(0.75);
+  }
+}
+
+/* 3. Hot Air Balloon gently swaying in the upper sky */
+.sprite-balloon {
+  offset-path: path("M 250,130 C 650,80 1100,170 1500,110 S 2200,160 2800,100 S 3300,150 3550,110");
+  offset-rotate: 0deg;
+  animation: floatBalloon 46s infinite ease-in-out alternate;
+}
+
+@keyframes floatBalloon {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.svg-balloon {
+  animation: balloonSway 3s infinite ease-in-out;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes balloonSway {
+
+  0%,
+  100% {
+    transform: rotate(-3deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(3deg) translateY(-8px);
+  }
+}
+
+/* 4. Twilight Fireflies with glowing aura */
+.sprite-firefly {
+  offset-path: path("M 1800,340 C 2050,230 2300,380 2550,270 S 2850,200 3150,300 S 3350,230 3500,310");
+  offset-rotate: auto;
+  animation: roamFirefly 22s infinite ease-in-out alternate;
+}
+
+@keyframes roamFirefly {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.firefly-core {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fef08a;
+  box-shadow: 0 0 12px 6px rgba(250, 204, 21, 0.85);
+  animation: pulseGlow 1.4s infinite ease-in-out alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+/* Scene Stations (Centered stations, open flowing landscape) */
+.scene-station {
+  width: var(--station-width);
+  min-width: var(--station-width);
+  max-width: var(--station-width);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4.5rem 1rem 5rem 1rem;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Open, borderless station flow */
+.station-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 440px;
+  gap: 0.65rem;
+  will-change: transform;
+}
+
+/* Typography with soft text shadow for open-world legibility */
+.scene-badge {
+  background: rgba(244, 63, 94, 0.15);
+  color: #be123c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.25rem 0.85rem;
+  border-radius: 999px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.1rem, 5vw, 2.7rem);
+  color: #be123c;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9), 0 1px 3px rgba(0, 0, 0, 0.08);
+  line-height: 1.15;
+}
+
+.story-subtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #881337;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
+}
+
+.scroll-cue {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #e11d48;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 0.4rem 1.15rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
+  animation: pulseCue 2s infinite ease-in-out;
+  margin-top: 0.4rem;
+}
+
+@keyframes pulseCue {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.chapter-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.page-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e11d48;
+  background: #ffe4e6;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.15);
+}
+
+.chapter-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #78716c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scene-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  color: #b91c1c;
+  text-shadow: 0 2px 6px rgba(255, 255, 255, 0.9);
+}
+
+.scene-narrative {
+  font-size: clamp(0.95rem, 2.5vw, 1.08rem);
+  line-height: 1.5;
+  color: #292524;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.7);
+}
+
+.story-caption {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #78716c;
+  font-weight: 600;
+}
+
+/* Character Spot & 3D Lift Flaps (Taller, Open Landscape, Invisible Frame) */
+.character-spot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: clamp(300px, 48vh, 420px);
+  margin: 0.6rem 0;
+  position: relative;
+}
+
+/* Character Morph Stage (Seamless Cross-Dissolve / Reveal) */
+.character-morph-target {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(240px, 58vw, 360px);
+  height: 100%;
+  cursor: pointer;
+  border-radius: 20px;
+  user-select: none;
+}
+
+.character-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.18));
+  transition: opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: opacity, transform, filter;
+  border-radius: 16px;
+}
+
+/* Default state: ONLY upper-art visible, lower-art completely hidden (ZERO bleed) */
+.character-img.upper-art {
+  z-index: 2;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.character-img.lower-art {
+  z-index: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.95);
+  pointer-events: none;
+}
+
+/* Subtle magical fairy pulse on hover */
+.character-morph-target:hover .character-img.upper-art {
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.22)) drop-shadow(0 0 14px rgba(244, 63, 94, 0.45));
+}
+
+/* Pinned Morph State via tap */
+.character-morph-target.is-pinned .character-img.upper-art {
+  opacity: 0 !important;
+  transform: translate(-50%, -50%) scale(1.05) !important;
+  pointer-events: none;
+}
+
+.character-morph-target.is-pinned .character-img.lower-art {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+  pointer-events: auto;
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.22)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.45));
+}
+
+/* Pronounced visual focus aura during pre-linger and post-linger */
+.character-morph-target[data-phase="pre-linger"] .character-img.upper-art {
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.24)) drop-shadow(0 0 18px rgba(244, 63, 94, 0.65));
+}
+
+.character-morph-target[data-phase="post-linger"] .character-img.lower-art {
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.26)) drop-shadow(0 0 22px rgba(245, 158, 11, 0.8));
+}
+
+/* Scene End */
+.end-flow {
+  gap: 1.1rem;
+}
+
+.end-star {
+  font-size: 3.5rem;
+}
+
+.end-heading {
+  font-family: var(--font-heading);
+  font-size: 2.3rem;
+  color: #6d28d9;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9);
+}
+
+.end-dedication {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.end-tag {
+  font-size: 0.82rem;
+  color: #4b5563;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Floating Bottom Controls Toolbar */
+.controls-toolbar {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--glass-border);
+  z-index: 50;
+}
+
+.control-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fff;
+  color: #be123c;
+  border: 2px solid #fecdd3;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  transform: translateY(-1px);
+}
+
+.control-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.chapter-label {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #881337;
+  min-width: 80px;
+  text-align: center;
+}

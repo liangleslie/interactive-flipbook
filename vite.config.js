@@ -6,8 +6,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
-        singlePageFlip: resolve(import.meta.dirname, 'single-page-flip/index.html'),
-        sidescroll: resolve(import.meta.dirname, 'sidescroll/index.html'),
+        pageFlip: resolve(import.meta.dirname, 'page-flip/index.html'),
+        sidescrollCards: resolve(import.meta.dirname, 'sidescroll-cards/index.html'),
+        sidescrollPanorama: resolve(import.meta.dirname, 'sidescroll-panorama/index.html'),
         verticalStory: resolve(import.meta.dirname, 'vertical-story/index.html'),
         storyCards: resolve(import.meta.dirname, 'story-cards/index.html'),
       },
