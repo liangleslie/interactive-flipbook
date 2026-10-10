@@ -56,6 +56,40 @@ uv run npm run build
 
 Compiled bundles for all 5 prototypes and the portal are output to `dist/`.
 
+### Standalone Distribution Bundle (Single HTML)
+
+To package a prototype into a completely self-contained, offline-ready single HTML file with all images, stylesheets, scripts, and storyboard data inlined:
+
+```bash
+# Package continuous panorama (default) -> dist/distro.html
+uv run node bundle.mjs --panorama
+# or via npm script:
+uv run npm run bundle -- --panorama
+
+# Package responsive 3D flipbook -> dist/distro.html
+uv run node bundle.mjs --flip
+
+# Package horizontal story strip -> dist/distro.html
+uv run node bundle.mjs --cards
+
+# Package vertical storyboard -> dist/distro.html
+uv run node bundle.mjs --vertical
+
+# Package story cards deck -> dist/distro.html
+uv run node bundle.mjs --deck
+
+# Package all prototypes + portal hub into dist/
+uv run node bundle.mjs --all
+
+# Custom output file
+uv run node bundle.mjs --ui panorama -o ./dist/sherry-storybook.html
+
+# Run packaging integrity check across all prototypes
+uv run node bundle.mjs --check
+```
+
+Output files are saved directly to `dist/` (e.g. `dist/distro.html`) and can be distributed or opened directly via `file://` in any browser without needing a web server.
+
 ---
 
 ## Automated Verification
