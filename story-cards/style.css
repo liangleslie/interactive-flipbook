@@ -1,0 +1,556 @@
+:root {
+  --bg-gradient: radial-gradient(circle at 50% 25%, #fef3c7 0%, #fed7aa 45%, #fbcfe8 100%);
+  --deck-bg: #fffbf2;
+  --cover-gradient: linear-gradient(145deg, #f43f5e 0%, #fb7185 55%, #fda4af 100%);
+  --end-gradient: linear-gradient(145deg, #e11d48 0%, #f43f5e 60%, #fb7185 100%);
+  --text-dark: #292524;
+  --text-muted: #78716c;
+  --primary-accent: #e11d48;
+  --accent-glow: rgba(225, 29, 72, 0.35);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --font-heading: 'Fredoka', cursive, sans-serif;
+  --font-body: 'Nunito', sans-serif;
+  --card-shadow: 0 20px 40px -10px rgba(120, 53, 15, 0.22), 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-gradient);
+  color: var(--text-dark);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.story-deck-app {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(190, 18, 60, 0.18);
+  background: #fff;
+}
+
+@media (min-width: 600px) {
+  .story-deck-app {
+    height: 92vh;
+    height: 92dvh;
+    border-radius: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Header & Story Progress Bars */
+.deck-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 0.75rem 1rem 0.5rem 1rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.1) 70%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Segmented Progress Bars (Instagram Stories style) */
+.progress-segments {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #ffffff;
+  border-radius: inherit;
+  transition: width 0.15s ease-out;
+}
+
+.progress-segment.is-viewed .progress-fill {
+  width: 100%;
+}
+
+.progress-segment.is-active .progress-fill {
+  width: 100%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+}
+
+/* Header Nav Row */
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ffffff;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.2s ease;
+}
+
+.back-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
+}
+
+.chapter-pill {
+  font-family: var(--font-heading);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.5px;
+}
+
+.card-counter {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+}
+
+/* Card Deck Container */
+.deck-stage {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px;
+  overflow: hidden;
+}
+
+/* Individual Story Card */
+.story-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.5rem 1.5rem 5rem 1.5rem;
+  background: var(--deck-bg);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, filter 0.45s ease;
+  will-change: transform, opacity;
+  box-shadow: var(--card-shadow);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(40px) scale(0.92);
+  z-index: 1;
+}
+
+/* Stack depth states */
+.story-card.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  z-index: 10;
+}
+
+.story-card.is-next {
+  opacity: 0.65;
+  pointer-events: none;
+  transform: translateY(14px) scale(0.95);
+  z-index: 8;
+  filter: brightness(0.96);
+}
+
+.story-card.is-next-2 {
+  opacity: 0.35;
+  pointer-events: none;
+  transform: translateY(28px) scale(0.9);
+  z-index: 6;
+  filter: brightness(0.92);
+}
+
+.story-card.is-prev {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-110%) rotate(-6deg);
+  z-index: 12;
+}
+
+/* Cover Card Styling */
+.story-card.card-cover {
+  background: var(--cover-gradient);
+  color: #ffffff;
+  text-align: center;
+}
+
+.cover-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 7vw, 2.5rem);
+  line-height: 1.15;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0.3rem;
+}
+
+.story-subtitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+/* Standard Story Card Content */
+.card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.chapter-badge {
+  font-family: var(--font-heading);
+  background: #ffe4e6;
+  color: #be123c;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+.card-num {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.card-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 5.5vw, 1.95rem);
+  color: #881337;
+  margin-top: 0.35rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+.card-narrative {
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: #44403c;
+  margin-bottom: 0.25rem;
+}
+
+/* Character Illustration & 3D Tactile Lift Flap */
+.illustration-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0.6rem 0;
+  min-height: 200px;
+}
+
+.flap-box {
+  position: relative;
+  width: 210px;
+  height: 240px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 12px 28px rgba(120, 53, 15, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+  perspective: 900px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.flap-box:active {
+  transform: scale(0.98);
+}
+
+.lower-art {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 86%;
+  max-height: 86%;
+  object-fit: contain;
+  user-select: none;
+  z-index: 1;
+  transition: transform 0.25s ease;
+}
+
+.flap-box:hover .lower-art {
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+/* 3D Top-Hinged Flap Door */
+.upper-door {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(0deg);
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  background: #ffffff;
+  border-radius: 14px;
+  z-index: 2;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transition: transform 0.65s cubic-bezier(0.32, 0, 0.15, 1), opacity 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upper-door::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  z-index: -1;
+}
+
+.upper-door::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff5f5;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  transform: rotateX(180deg);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.upper-door .upper-art {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  backface-visibility: hidden;
+}
+
+.upper-door.is-lifted {
+  transform: translate(-50%, -50%) rotateX(180deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Flap Lift Cue Badge */
+.flap-hint-pill {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #e11d48;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+  white-space: nowrap;
+  z-index: 5;
+  animation: bounceHint 2s infinite ease-in-out;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.upper-door.is-lifted + .flap-hint-pill,
+.flap-box.is-revealed .flap-hint-pill {
+  opacity: 0;
+}
+
+@keyframes bounceHint {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* End Card */
+.story-card.card-end {
+  background: var(--end-gradient);
+  color: #ffffff;
+  text-align: center;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.end-ribbon {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.end-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 8vw, 3rem);
+  line-height: 1.1;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.end-message {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 340px;
+  margin: 0 auto;
+  opacity: 0.95;
+}
+
+.end-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+  max-width: 280px;
+  margin: 0.5rem auto 0 auto;
+}
+
+.btn-replay {
+  background: #ffffff;
+  color: #be123c;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-replay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Tap Zones (Instagram Stories tap left / right navigation) */
+.tap-zone {
+  position: absolute;
+  top: 4.5rem;
+  bottom: 4.5rem;
+  width: 40%;
+  z-index: 40;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tap-zone-left {
+  left: 0;
+}
+
+.tap-zone-right {
+  right: 0;
+}
+
+/* Bottom Controls Toolbar */
+.deck-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 0.6rem 1rem 1rem 1rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.1) 70%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-arrow-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #be123c;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-arrow-btn:hover:not(:disabled) {
+  background: #ffffff;
+  transform: scale(1.08);
+}
+
+.nav-arrow-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.deck-instruction {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.3px;
+}

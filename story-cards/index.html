@@ -1,55 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Story Cards Deck — Sherry's Storybook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: radial-gradient(circle at 50% 25%, #fef3c7 0%, #fed7aa 45%, #fbcfe8 100%);
-      color: #292524;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      text-align: center;
-    }
-    .box {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 2.5rem;
-      border-radius: 24px;
-      max-width: 500px;
-      box-shadow: 0 15px 35px rgba(190, 18, 60, 0.15);
-    }
-    h1 { font-family: 'Fredoka', cursive; color: #be123c; margin-bottom: 0.5rem; }
-    p { color: #57534e; margin-bottom: 1.5rem; line-height: 1.6; }
-    a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #be123c;
-      color: white;
-      text-decoration: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 999px;
-      font-weight: 700;
-      font-family: 'Fredoka', cursive;
-    }
-    a:hover { background: #e11d48; }
-  </style>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
 </head>
+
 <body>
-  <div class="box">
-    <div style="font-size: 3rem; margin-bottom: 0.5rem;">✨</div>
-    <h1>4. Story Cards Deck</h1>
-    <p>This prototype will implement tap-to-advance story cards with progress bars. Coming in phase 4.</p>
-    <a href="../">← Back to All Styles</a>
+  <div class="story-deck-app" id="story-deck-app">
+    <!-- Top Story Header with Segmented Progress Bars -->
+    <header class="deck-header">
+      <div class="progress-segments" id="progress-segments">
+        <div class="progress-segment is-active" data-index="0">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-segment" data-index="1">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-segment" data-index="2">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-segment" data-index="3">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="header-nav">
+        <a href="../" class="back-link">‹ All Styles</a>
+        <div class="chapter-pill" id="chapter-pill">Start</div>
+        <div class="card-counter" id="card-counter">1 / 4</div>
+      </div>
+    </header>
+
+    <!-- Invisible Side Tap Zones for Story Navigation -->
+    <div class="tap-zone tap-zone-left" id="tap-prev" aria-label="Previous card"></div>
+    <div class="tap-zone tap-zone-right" id="tap-next" aria-label="Next card"></div>
+
+    <!-- 3D Card Stack Stage -->
+    <main class="deck-stage" id="deck-stage">
+      <!-- Card 0: Cover / Start -->
+      <section class="story-card card-cover is-active" data-index="0">
+        <div>
+          <span class="cover-badge">Story Cards Deck</span>
+          <h1 class="hero-title">Sherry & Friends</h1>
+          <p class="story-subtitle">A Magical Tale of Fun & Friendship</p>
+        </div>
+
+        <div class="illustration-stage">
+          <div class="flap-box" data-card="0" title="Tap to lift flap">
+            <img src="../resources/png/sg-2.png" alt="Sherry revealed inside" class="lower-art" />
+            <div class="upper-door">
+              <img src="../resources/png/sg-1.png" alt="Sherry cover" class="upper-art" />
+            </div>
+            <div class="flap-hint-pill">Peek inside 👆</div>
+          </div>
+        </div>
+
+        <div>
+          <p class="deck-instruction">Tap right to flip card • Tap art to lift flap</p>
+        </div>
+      </section>
+
+      <!-- Card 1: Meet Ed -->
+      <section class="story-card card-story is-next" data-index="1">
+        <div class="card-meta-row">
+          <span class="chapter-badge">Chapter One</span>
+          <span class="card-num">01</span>
+        </div>
+
+        <div>
+          <h2 class="card-heading">Meet Ed!</h2>
+          <p class="card-narrative">Once upon a sunny afternoon, Ed was full of cheerful ideas and ready for an adventure.</p>
+        </div>
+
+        <div class="illustration-stage">
+          <div class="flap-box" data-card="1" title="Tap to lift flap">
+            <img src="../resources/jpg/ed-2.jpg" alt="Ed inside" class="lower-art" />
+            <div class="upper-door">
+              <img src="../resources/jpg/ed-1.jpg" alt="Ed outside" class="upper-art" />
+            </div>
+            <div class="flap-hint-pill">Lift flap 👆</div>
+          </div>
+        </div>
+
+        <div>
+          <p class="deck-instruction">Tap illustration to peek inside</p>
+        </div>
+      </section>
+
+      <!-- Card 2: Leslie Joins In -->
+      <section class="story-card card-story is-next-2" data-index="2">
+        <div class="card-meta-row">
+          <span class="chapter-badge">Chapter Two</span>
+          <span class="card-num">02</span>
+        </div>
+
+        <div>
+          <h2 class="card-heading">Leslie's Turn!</h2>
+          <p class="card-narrative">Leslie arrived with bright laughter and boundless energy, making every moment unforgettable.</p>
+        </div>
+
+        <div class="illustration-stage">
+          <div class="flap-box" data-card="2" title="Tap to lift flap">
+            <img src="../resources/png/les-2.png" alt="Leslie revealed" class="lower-art" />
+            <div class="upper-door">
+              <img src="../resources/png/les-1.png" alt="Leslie" class="upper-art" />
+            </div>
+            <div class="flap-hint-pill">Lift flap 👆</div>
+          </div>
+        </div>
+
+        <div>
+          <p class="deck-instruction">Tap illustration to peek inside</p>
+        </div>
+      </section>
+
+      <!-- Card 3: The End -->
+      <section class="story-card card-end" data-index="3">
+        <div>
+          <span class="end-ribbon">Special Edition</span>
+          <h2 class="end-title">The End ✨</h2>
+          <p class="end-message">Thank you for joining our magical tale! Happy memories and laughter forever.</p>
+        </div>
+
+        <div class="illustration-stage">
+          <div class="flap-box" data-card="3" title="Sherry">
+            <img src="../resources/png/sg-2.png" alt="Sherry celebration" class="lower-art" />
+            <div class="upper-door is-lifted">
+              <img src="../resources/png/sg-1.png" alt="Sherry" class="upper-art" />
+            </div>
+          </div>
+        </div>
+
+        <div class="end-actions">
+          <button class="btn-replay" id="btn-replay">↺ Replay Story Cards</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Toolbar -->
+    <footer class="deck-footer">
+      <button class="nav-arrow-btn" id="btn-prev" aria-label="Previous card" disabled>◀</button>
+      <span class="deck-instruction" id="footer-cue">Tap sides or use arrows</span>
+      <button class="nav-arrow-btn" id="btn-next" aria-label="Next card">▶</button>
+    </footer>
   </div>
+
+  <script type="module" src="./main.js"></script>
 </body>
+
 </html>
