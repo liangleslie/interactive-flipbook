@@ -3,13 +3,15 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Magic Storybook — Continuous Story Panorama</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800;900&family=Outfit:wght@600;800;900&display=swap"
     rel="stylesheet">
+  <link rel="preload" as="image" href="../resources/jpg/panorama_boardgame.jpg" fetchpriority="high" />
+  <link rel="preload" as="image" href="../resources/jpg/office-pano.jpg" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 
@@ -21,16 +23,39 @@
 
       <!-- Continuous Journey Trail Tracker -->
       <div class="journey-track" id="journey-track">
-        <div class="journey-line">
-          <div class="journey-progress" id="journey-progress"></div>
+        <div class="journey-inner" id="journey-inner">
+          <div class="journey-line">
+            <div class="journey-progress" id="journey-progress"></div>
+          </div>
         </div>
       </div>
+
+      <!-- Background Music Toggle Controller -->
+      <button class="music-toggle-btn is-paused" id="btn-music" aria-label="Toggle background music" title="Play background music">
+        <span class="music-icon" id="music-icon" aria-hidden="true">🎵</span>
+        <span class="sound-bars" aria-hidden="true">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+        </span>
+      </button>
     </header>
+
+    <!-- Background Audio Element -->
+    <audio id="bgm-audio" src="../resources/bgm.mp3" preload="auto" loop></audio>
 
     <!-- Fixed Environmental Landscape Backdrop (decoupled from scroll container to prevent blank space / scrollWidth inflation) -->
     <div class="panorama-backdrop-container" id="panorama-backdrop-container" aria-hidden="true">
-      <div class="panorama-backdrop-layer"></div>
+      <div class="panorama-backdrop-layer act-backdrop-0" id="panorama-backdrop-layer-0">
+        <img class="panorama-backdrop-img" id="panorama-backdrop-img-0" src="../resources/jpg/panorama_boardgame.jpg" alt="Act I Story Panorama Backdrop" />
+      </div>
+      <div class="panorama-backdrop-layer act-backdrop-1" id="panorama-backdrop-layer-1" style="opacity: 0;">
+        <img class="panorama-backdrop-img" id="panorama-backdrop-img-1" src="../resources/jpg/office-pano.jpg" alt="Act II Story Panorama Backdrop" />
+      </div>
       <div class="panorama-sky-tint"></div>
+
+      <!-- Deep Atmospheric Ambient Lyrics Layer -->
+      <div class="lyrics-layer lyrics-layer-deep" id="lyrics-layer-deep" aria-hidden="true"></div>
 
       <!-- Scripted Path Animated Sprites for Dynamic Liveliness -->
       <div class="sprite-track-layer">
@@ -70,6 +95,10 @@
           <div class="firefly-core"></div>
         </div>
       </div>
+
+      <!-- Mid-depth Environmental & Foreground Kinetic Lyrics Layers -->
+      <div class="lyrics-layer lyrics-layer-mid" id="lyrics-layer-mid" aria-hidden="true"></div>
+      <div class="lyrics-layer lyrics-layer-foreground" id="lyrics-layer-foreground" aria-hidden="true"></div>
     </div>
 
     <!-- Main Continuous Panorama Viewport -->

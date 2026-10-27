@@ -27,7 +27,7 @@ function renderSidescrollCardsDOM() {
       return `
         <section class="strip-card card-cover card-front-cover is-active" data-index="${i}" id="card-${i}">
           <div class="card-inner cover-inner">
-            <span class="cover-badge">${page.text1 || page.badge || 'Special Edition'}</span>
+            <span class="cover-badge">${page.chapterTag || page.text1 || 'Special Edition'}</span>
             <h2 class="cover-title">${page.title}</h2>
             <div class="cover-art">
               <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} lower" class="character-hero lower-art" />
@@ -35,7 +35,22 @@ function renderSidescrollCardsDOM() {
                 <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} upper" class="character-hero upper-art" />
               </div>
             </div>
-            <p class="cover-author">${page.text2 || page.subtitle || ''}</p>
+            <p class="cover-author">${page.narrative || page.text2 || ''}</p>
+            <p class="story-narrative-2">${page.narrative2 || ''}</p>
+            <div class="cover-tap-hint">${page.cue || 'Swipe sideways to explore ➔'}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'divider') {
+      return `
+        <section class="strip-card card-divider" data-index="${i}" id="card-${i}">
+          <div class="card-inner cover-inner">
+            <span class="cover-badge">${page.chapterTag || 'Act'}</span>
+            <h2 class="cover-title">${page.title || page.navLabel}</h2>
+            <p class="cover-author">${page.narrative || ''}</p>
+            <p class="story-narrative-2">${page.narrative2 || ''}</p>
             <div class="cover-tap-hint">${page.cue || 'Swipe sideways to explore ➔'}</div>
           </div>
         </section>
@@ -48,9 +63,16 @@ function renderSidescrollCardsDOM() {
           <div class="card-inner cover-inner back-inner">
             <div class="back-logo">🌟</div>
             <h2 class="back-title">${page.title}</h2>
-            <p class="back-author">${page.text2 || page.narrative || ''}</p>
+            <p class="back-author">${page.narrative || page.text2 || ''}</p>
+            <div class="cover-art page-illustration">
+              <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} lower" class="character-hero lower-art" />
+              <div class="upper-wrapper" title="Tap to lift flap">
+                <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} upper" class="character-hero upper-art" />
+              </div>
+            </div>
+            <p class="story-narrative-2">${page.narrative2 || ''}</p>
             <div class="back-footer">
-              <span>Sidescrolling Storybook</span>
+              <span>${page.chapterTag || 'Sidescrolling Storybook'}</span>
             </div>
           </div>
         </section>
@@ -62,18 +84,17 @@ function renderSidescrollCardsDOM() {
       <section class="strip-card card-story card-story-${page.id || i}" data-index="${i}" id="card-${i}">
         <div class="card-inner story-content">
           <div class="card-badge-row">
-            <span class="page-number">${page.pageNumber || i}</span>
-            <span class="card-chapter-tag">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+            <span class="card-chapter-tag">${page.chapterTag || page.text1 || `Chapter ${page.pageNumber}`}</span>
           </div>
           <h2 class="story-title">${page.title}</h2>
-          <p class="story-narrative">${page.text2 || page.narrative || ''}</p>
+          <p class="story-narrative">${page.narrative || page.text2 || ''}</p>
           <div class="page-illustration">
             <img src="${page.lowerArt}" alt="${page.characterName || 'Hero'} lower" class="story-img lower-art" />
             <div class="upper-wrapper" title="Tap to lift flap">
               <img src="${page.upperArt}" alt="${page.characterName || 'Hero'} upper" class="story-img upper-art" />
             </div>
           </div>
-          <p class="story-caption">${page.caption || 'Tap illustration to lift flap'}</p>
+          <p class="story-narrative-2">${page.narrative2 || ''}</p>
         </div>
       </section>
     `;
@@ -253,11 +274,15 @@ document.querySelectorAll('.cover-art, .page-illustration').forEach((container) 
   wrapper.addEventListener('click', (e) => {
     e.stopPropagation();
     wrapper.classList.add('is-hidden');
+    const card = container.closest('.strip-card');
+    card?.querySelector('.story-narrative-2')?.classList.add('is-visible');
   });
 
   lower.addEventListener('click', (e) => {
     e.stopPropagation();
     wrapper.classList.remove('is-hidden');
+    const card = container.closest('.strip-card');
+    card?.querySelector('.story-narrative-2')?.classList.remove('is-visible');
   });
 });
 

@@ -26,9 +26,9 @@ function renderVerticalFeedDOM() {
       return `
         <section class="feed-section section-cover" id="section-${i}" data-index="${i}">
           <div>
-            <span class="cover-badge">${page.text1 || page.badge || 'Vertical Feed'}</span>
+            <span class="cover-badge">${page.chapterTag || page.text1 || 'Vertical Feed'}</span>
             <h1 class="hero-title">${page.title}</h1>
-            <p class="story-subtitle">${page.text2 || page.subtitle || ''}</p>
+            <p class="story-subtitle">${page.narrative || page.text2 || ''}</p>
           </div>
 
           <div class="illustration-container">
@@ -41,8 +41,27 @@ function renderVerticalFeedDOM() {
             </div>
           </div>
 
+          <p class="story-narrative-2">${page.narrative2 || ''}</p>
+
           <div class="section-footer-cue">
             <span>${page.cue || 'Scroll down to begin ▼'}</span>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'divider') {
+      return `
+        <section class="feed-section section-divider" id="section-${i}" data-index="${i}">
+          <div style="text-align:center;padding:2rem 1rem;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">✨ 🎭 ✨</div>
+            <span class="cover-badge" style="background:#ffe4e6;color:#be123c;padding:0.3rem 1rem;border-radius:999px;font-weight:700;">${page.chapterTag || 'Act'}</span>
+            <h2 class="cover-title" style="font-size:2rem;margin:0.75rem 0;color:#9f1239;">${page.title || page.navLabel}</h2>
+            <p class="cover-tagline" style="font-size:1.1rem;color:#475569;margin-bottom:0.5rem;">${page.narrative || ''}</p>
+            <p class="story-narrative-2" style="font-size:1rem;color:#e11d48;font-style:italic;">${page.narrative2 || ''}</p>
+          </div>
+          <div class="section-footer-cue">
+            <span>${page.cue || 'Scroll down to continue ▼'}</span>
           </div>
         </section>
       `;
@@ -52,19 +71,22 @@ function renderVerticalFeedDOM() {
       return `
         <section class="feed-section section-end" id="section-${i}" data-index="${i}">
           <div>
-            <span class="end-ribbon">${page.text1 || page.ribbon || 'With Love'}</span>
+            <span class="end-ribbon">${page.chapterTag || page.text1 || 'With Love'}</span>
             <h2 class="end-title">${page.title}</h2>
-            <p class="end-narrative">${page.text2 || page.narrative || ''}</p>
+            <p class="end-narrative">${page.narrative || page.text2 || ''}</p>
           </div>
 
           <div class="illustration-container">
             <div class="flap-box" data-section="${i}" title="${page.characterName || 'Hero'}">
               <img src="${page.lowerArt}" alt="Celebration" class="lower-art" />
-              <div class="upper-flap is-lifted">
+              <div class="upper-flap">
                 <img src="${page.upperArt}" alt="Celebration" class="upper-art" />
               </div>
+              <div class="flap-hint-pill">Peek inside 👆</div>
             </div>
           </div>
+
+          <p class="story-narrative-2">${page.narrative2 || ''}</p>
 
           <div>
             <button class="btn-restart" id="btn-restart">▲ Scroll Back to Top</button>
@@ -77,13 +99,13 @@ function renderVerticalFeedDOM() {
     return `
       <section class="feed-section section-story" id="section-${i}" data-index="${i}">
         <div class="section-meta-row">
-          <span class="chapter-tag">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+          <span class="chapter-tag">${page.chapterTag || page.text1 || `Chapter ${page.pageNumber}`}</span>
           <span class="page-indicator">${String(page.pageNumber || i).padStart(2, '0')}</span>
         </div>
 
         <div>
           <h2 class="section-heading">${page.title}</h2>
-          <p class="section-narrative">${page.text2 || page.narrative || ''}</p>
+          <p class="section-narrative">${page.narrative || page.text2 || ''}</p>
         </div>
 
         <div class="illustration-container">
@@ -95,6 +117,8 @@ function renderVerticalFeedDOM() {
             <div class="flap-hint-pill">Lift flap 👆</div>
           </div>
         </div>
+
+        <p class="story-narrative-2">${page.narrative2 || ''}</p>
 
         <div class="section-footer-cue">
           <span>${page.cue || 'Scroll for next chapter ▼'}</span>
@@ -146,10 +170,11 @@ btnNext?.addEventListener('click', () => scrollToSection(currentSectionIndex + 1
 btnRestart?.addEventListener('click', () => {
   flapBoxes.forEach((box) => {
     const flap = box.querySelector('.upper-flap');
-    if (flap && box.getAttribute('data-section') !== String(totalSections - 1)) {
+    if (flap) {
       flap.classList.remove('is-lifted');
     }
     box.classList.remove('is-revealed');
+    box.closest('.feed-section')?.querySelector('.story-narrative-2')?.classList.remove('is-visible');
   });
   scrollToSection(0);
 });
@@ -191,6 +216,8 @@ flapBoxes.forEach((box) => {
 
     const isLifted = flap.classList.toggle('is-lifted');
     box.classList.toggle('is-revealed', isLifted);
+    const narrative2 = box.closest('.feed-section')?.querySelector('.story-narrative-2');
+    if (narrative2) narrative2.classList.toggle('is-visible', isLifted);
   });
 });
 

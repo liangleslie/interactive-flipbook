@@ -31,9 +31,9 @@ function renderDeckDOM() {
       return `
         <section class="story-card card-cover ${i === 0 ? 'is-active' : 'is-next'}" data-index="${i}">
           <div>
-            <span class="cover-badge">${page.text1 || page.badge || 'Story Cards'}</span>
+            <span class="cover-badge">${page.chapterTag || page.text1 || 'Story Cards'}</span>
             <h1 class="hero-title">${page.title}</h1>
-            <p class="story-subtitle">${page.text2 || page.subtitle || ''}</p>
+            <p class="story-subtitle">${page.narrative || page.text2 || ''}</p>
           </div>
 
           <div class="illustration-stage">
@@ -47,7 +47,23 @@ function renderDeckDOM() {
           </div>
 
           <div>
-            <p class="deck-instruction">${page.caption || 'Tap right to flip card • Tap art to lift flap'}</p>
+            <p class="story-narrative-2">${page.narrative2 || ''}</p>
+            <p class="deck-instruction">${page.cue || 'Tap right to flip card • Tap art to lift flap'}</p>
+          </div>
+        </section>
+      `;
+    }
+
+    if (page.type === 'divider') {
+      return `
+        <section class="story-card card-divider ${i === 0 ? 'is-active' : ''}" data-index="${i}">
+          <div style="text-align:center;padding:1.5rem 0.5rem;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">✨ 🎭 ✨</div>
+            <span class="cover-badge" style="background:#ffe4e6;color:#be123c;padding:0.3rem 1rem;border-radius:999px;font-weight:700;">${page.chapterTag || 'Act'}</span>
+            <h2 class="card-title" style="font-size:2rem;margin:0.75rem 0;color:#9f1239;">${page.title || page.navLabel}</h2>
+            <p class="card-narrative" style="font-size:1.1rem;color:#475569;margin-bottom:0.5rem;">${page.narrative || ''}</p>
+            <p class="story-narrative-2" style="font-size:1rem;color:#e11d48;font-style:italic;">${page.narrative2 || ''}</p>
+            <p class="deck-instruction" style="margin-top:1rem;">${page.cue || 'Tap right to flip card ➔'}</p>
           </div>
         </section>
       `;
@@ -57,18 +73,23 @@ function renderDeckDOM() {
       return `
         <section class="story-card card-end ${i === 0 ? 'is-active' : ''}" data-index="${i}">
           <div>
-            <span class="end-ribbon">${page.text1 || page.ribbon || 'Special Edition'}</span>
+            <span class="end-ribbon">${page.chapterTag || page.text1 || 'Special Edition'}</span>
             <h2 class="end-title">${page.title}</h2>
-            <p class="end-message">${page.text2 || page.narrative || ''}</p>
+            <p class="end-message">${page.narrative || page.text2 || ''}</p>
           </div>
 
           <div class="illustration-stage">
             <div class="flap-box" data-card="${i}" title="${page.characterName || 'Hero'}">
               <img src="${page.lowerArt}" alt="Celebration" class="lower-art" />
-              <div class="upper-door is-lifted">
+              <div class="upper-door">
                 <img src="${page.upperArt}" alt="Celebration" class="upper-art" />
               </div>
+              <div class="flap-hint-pill">Peek inside 👆</div>
             </div>
+          </div>
+
+          <div>
+            <p class="story-narrative-2">${page.narrative2 || ''}</p>
           </div>
 
           <div class="end-actions">
@@ -82,13 +103,13 @@ function renderDeckDOM() {
     return `
       <section class="story-card card-story ${i === 0 ? 'is-active' : (i === 1 ? 'is-next' : 'is-next-2')}" data-index="${i}">
         <div class="card-meta-row">
-          <span class="chapter-badge">${page.text1 || page.chapterTag || `Chapter ${page.pageNumber}`}</span>
+          <span class="chapter-badge">${page.chapterTag || page.text1 || `Chapter ${page.pageNumber}`}</span>
           <span class="card-num">${String(page.pageNumber || i).padStart(2, '0')}</span>
         </div>
 
         <div>
           <h2 class="card-heading">${page.title}</h2>
-          <p class="card-narrative">${page.text2 || page.narrative || ''}</p>
+          <p class="card-narrative">${page.narrative || page.text2 || ''}</p>
         </div>
 
         <div class="illustration-stage">
@@ -102,7 +123,8 @@ function renderDeckDOM() {
         </div>
 
         <div>
-          <p class="deck-instruction">${page.caption || 'Tap illustration to peek inside'}</p>
+          <p class="story-narrative-2">${page.narrative2 || ''}</p>
+          <p class="deck-instruction">${page.cue || 'Tap right to flip card • Tap art to lift flap'}</p>
         </div>
       </section>
     `;
@@ -201,10 +223,11 @@ btnReplay?.addEventListener('click', (e) => {
   e.stopPropagation();
   flapBoxes.forEach((box) => {
     const door = box.querySelector('.upper-door');
-    if (door && box.getAttribute('data-card') !== String(totalCards - 1)) {
+    if (door) {
       door.classList.remove('is-lifted');
     }
     box.classList.remove('is-revealed');
+    box.closest('.story-card')?.querySelector('.story-narrative-2')?.classList.remove('is-visible');
   });
   updateDeckState(0);
 });
@@ -218,6 +241,8 @@ flapBoxes.forEach((box) => {
 
     const isLifted = door.classList.toggle('is-lifted');
     box.classList.toggle('is-revealed', isLifted);
+    const narrative2 = box.closest('.story-card')?.querySelector('.story-narrative-2');
+    if (narrative2) narrative2.classList.toggle('is-visible', isLifted);
   });
 });
 
